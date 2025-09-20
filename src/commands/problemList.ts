@@ -189,11 +189,6 @@ export async function manageProblemLists(): Promise<void> {
             command: "leetcode.createProblemListFromURL",
         },
         {
-            label: "🔄 Sync Predefined Lists",
-            description: "Sync LeetCode Hot 100, Top Interview 150, etc.",
-            command: "leetcode.syncPredefinedProblemLists",
-        },
-        {
             label: "➕ Create New Problem List",
             description: "Create a custom problem list",
             command: "leetcode.createProblemList",

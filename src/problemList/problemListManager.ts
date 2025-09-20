@@ -4,6 +4,7 @@
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
+import * as vscode from "vscode";
 import { IProblemList } from "../shared";
 import { urlBasedProblemListService } from "./officialProblemListService";
 
@@ -22,8 +23,6 @@ class ProblemListManager {
             console.log("Initializing problem list manager...");
             await this.loadProblemLists();
             console.log("Loaded problem lists:", this.problemLists.size);
-            await this.syncPredefinedLists();
-            console.log("Synced predefined problem lists:", this.problemLists.size);
             console.log("Problem list manager initialized successfully");
         } catch (error) {
             console.error("Failed to initialize problem list manager:", error);
@@ -145,27 +144,9 @@ class ProblemListManager {
         }
     }
 
-    private async syncPredefinedLists(): Promise<void> {
-        try {
-            console.log("Syncing predefined problem lists...");
-            const predefinedLists = await urlBasedProblemListService.syncPredefinedLists();
-            console.log("Got predefined lists:", predefinedLists.length);
-            
-            for (const list of predefinedLists) {
-                // Always update predefined lists to get latest data
-                this.problemLists.set(list.id, list);
-                console.log("Added list:", list.name, "with", list.problems.length, "problems");
-            }
-            
-            await this.saveProblemLists();
-            console.log("Saved problem lists to:", this.storagePath);
-        } catch (error) {
-            console.error("Failed to sync predefined problem lists:", error);
-        }
-    }
-
     public async refreshPredefinedLists(): Promise<void> {
-        await this.syncPredefinedLists();
+        // No predefined lists to refresh
+        vscode.window.showInformationMessage("No predefined lists to sync. Use 'Create from URL' to add problem lists.");
     }
 
     public async createProblemListFromURL(url: string, name?: string): Promise<IProblemList> {
