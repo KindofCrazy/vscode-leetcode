@@ -196,7 +196,7 @@
                     "command": "leetcode.problems.sort",
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@3"
-                },
+                }
             ],
             "view/item/context": [
                 {
@@ -223,7 +223,7 @@
                     "command": "leetcode.removeFavorite",
                     "when": "view == leetCodeExplorer && viewItem == problem-favorite",
                     "group": "inline"
-                },
+                }
             ],
             "commandPalette": [
                 {

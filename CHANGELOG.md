@@ -3,6 +3,31 @@ All notable changes to the "leetcode" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [Unreleased] - Future Development Plan
+
+### 🚀 Problem Sets (题单) Feature - Coming Soon
+- **Planned**: Comprehensive problem set management system
+- **Planned**: AI-powered problem set creation and recommendations
+- **Planned**: Advanced progress tracking and analytics
+- **Planned**: Study plans and learning paths
+- **Planned**: Community features and set sharing
+- **Planned**: Gamification and achievement system
+
+### 📅 Development Timeline
+- **Q1 2024**: Core problem set creation and management
+- **Q2 2024**: Progress tracking and analytics  
+- **Q3 2024**: AI-powered features and recommendations
+- **Q4 2024**: Advanced learning features and community integration
+
+## [0.18.5]
+### Added
+- Enhanced documentation with future development roadmap
+- Problem Sets feature planning and community engagement framework
+
+### Changed
+- Updated README with comprehensive future development plan
+- Added detailed feature roadmap for 2024
+
 ## [0.18.4]
 ### Added
 - change graphql path

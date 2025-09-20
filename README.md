@@ -281,6 +281,63 @@ src/
 - ✅ **Enhanced User Experience**: Better layout and organization
 - ✅ **New Commands**: Full problem list management commands
 - ✅ **Configuration Options**: Customizable split view behavior
+- ✅ **Documentation Updates**: Enhanced documentation with future development roadmap
+
+## 🚀 Future Development Plan
+
+### 📋 Problem Sets (题单) Feature - Coming Soon
+
+We are actively developing a comprehensive **Problem Sets** feature that will revolutionize how you organize and tackle LeetCode problems:
+
+#### 🎯 Planned Features
+
+##### **1. Intelligent Problem Sets**
+- **Auto-Generated Sets**: AI-powered problem set creation based on difficulty progression
+- **Topic-Based Sets**: Curated problem sets for specific algorithms (DFS, BFS, DP, etc.)
+- **Company-Specific Sets**: Problem sets tailored for specific tech companies
+- **Interview Preparation**: Complete interview preparation tracks with realistic problem sequences
+
+##### **2. Advanced Set Management**
+- **Set Templates**: Pre-built templates for common learning paths
+- **Custom Set Builder**: Drag-and-drop interface for creating personalized sets
+- **Set Sharing**: Share your problem sets with the community
+- **Import/Export**: Import sets from external sources or export for backup
+
+##### **3. Progress Tracking & Analytics**
+- **Set Progress**: Visual progress tracking for each problem set
+- **Performance Metrics**: Detailed analytics on solving patterns and improvement
+- **Weakness Identification**: AI analysis to identify knowledge gaps
+- **Recommendation Engine**: Smart suggestions for next problems to solve
+
+##### **4. Enhanced Learning Experience**
+- **Adaptive Difficulty**: Dynamic difficulty adjustment based on performance
+- **Spaced Repetition**: Intelligent review scheduling for better retention
+- **Study Plans**: Structured learning paths with milestones and achievements
+- **Gamification**: Points, badges, and leaderboards for motivation
+
+##### **5. Integration Features**
+- **Calendar Integration**: Schedule problem-solving sessions
+- **Study Group Support**: Collaborative problem solving with friends
+- **Mentor Mode**: Expert guidance and hints for complex problems
+- **Mobile Sync**: Seamless synchronization across devices
+
+#### 📅 Development Timeline
+
+- **Phase 1 (Q1 2024)**: Core problem set creation and management
+- **Phase 2 (Q2 2024)**: Progress tracking and analytics
+- **Phase 3 (Q3 2024)**: AI-powered features and recommendations
+- **Phase 4 (Q4 2024)**: Advanced learning features and community integration
+
+#### 🤝 Contributing to Development
+
+We welcome community contributions for the Problem Sets feature:
+
+- **Feature Requests**: Share your ideas on our [GitHub Issues](https://github.com/KindofCrazy/vscode-leetcode/issues)
+- **Beta Testing**: Join our beta program to test new features early
+- **Code Contributions**: Help us build the future of LeetCode problem solving
+- **Feedback**: Your input shapes our development priorities
+
+> **Note**: The Problem Sets feature is our top priority for 2024. We're committed to delivering a world-class learning experience that goes beyond traditional problem lists.
 
 ## 🔄 Migration from Original Extension
 
