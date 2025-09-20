@@ -5,7 +5,7 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { IProblemList } from "../shared";
-import { officialProblemListService } from "./officialProblemListService";
+import { urlBasedProblemListService } from "./officialProblemListService";
 
 class ProblemListManager {
     private problemLists: Map<string, IProblemList> = new Map();
@@ -22,8 +22,8 @@ class ProblemListManager {
             console.log("Initializing problem list manager...");
             await this.loadProblemLists();
             console.log("Loaded problem lists:", this.problemLists.size);
-            await this.syncOfficialProblemLists();
-            console.log("Synced official problem lists:", this.problemLists.size);
+            await this.syncPredefinedLists();
+            console.log("Synced predefined problem lists:", this.problemLists.size);
             console.log("Problem list manager initialized successfully");
         } catch (error) {
             console.error("Failed to initialize problem list manager:", error);
@@ -145,14 +145,14 @@ class ProblemListManager {
         }
     }
 
-    private async syncOfficialProblemLists(): Promise<void> {
+    private async syncPredefinedLists(): Promise<void> {
         try {
-            console.log("Syncing official problem lists...");
-            const officialLists = await officialProblemListService.syncOfficialProblemLists();
-            console.log("Got official lists:", officialLists.length);
+            console.log("Syncing predefined problem lists...");
+            const predefinedLists = await urlBasedProblemListService.syncPredefinedLists();
+            console.log("Got predefined lists:", predefinedLists.length);
             
-            for (const list of officialLists) {
-                // Always update official lists to get latest data
+            for (const list of predefinedLists) {
+                // Always update predefined lists to get latest data
                 this.problemLists.set(list.id, list);
                 console.log("Added list:", list.name, "with", list.problems.length, "problems");
             }
@@ -160,12 +160,19 @@ class ProblemListManager {
             await this.saveProblemLists();
             console.log("Saved problem lists to:", this.storagePath);
         } catch (error) {
-            console.error("Failed to sync official problem lists:", error);
+            console.error("Failed to sync predefined problem lists:", error);
         }
     }
 
-    public async refreshOfficialLists(): Promise<void> {
-        await this.syncOfficialProblemLists();
+    public async refreshPredefinedLists(): Promise<void> {
+        await this.syncPredefinedLists();
+    }
+
+    public async createProblemListFromURL(url: string, name?: string): Promise<IProblemList> {
+        const problemList = await urlBasedProblemListService.createProblemListFromURL(url, name);
+        this.problemLists.set(problemList.id, problemList);
+        await this.saveProblemLists();
+        return problemList;
     }
 }
 

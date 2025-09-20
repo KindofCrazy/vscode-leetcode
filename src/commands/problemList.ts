@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 import { problemListManager } from "../problemList/problemListManager";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
-import { officialProblemListService } from "../problemList/officialProblemListService";
+import { urlBasedProblemListService } from "../problemList/officialProblemListService";
 
 export async function createProblemList(): Promise<void> {
     const name = await vscode.window.showInputBox({
@@ -130,21 +130,68 @@ export async function removeProblemFromList(problemId: string): Promise<void> {
     }
 }
 
-export async function syncOfficialProblemLists(): Promise<void> {
+export async function syncPredefinedProblemLists(): Promise<void> {
     try {
-        await officialProblemListService.refreshOfficialLists();
+        await urlBasedProblemListService.refreshPredefinedLists();
         leetCodeTreeDataProvider.refresh();
     } catch (error) {
-        vscode.window.showErrorMessage(`Failed to sync official problem lists: ${error}`);
+        vscode.window.showErrorMessage(`Failed to sync predefined problem lists: ${error}`);
+    }
+}
+
+export async function createProblemListFromURL(): Promise<void> {
+    const url = await vscode.window.showInputBox({
+        prompt: "Enter LeetCode study plan or problem list URL",
+        placeHolder: "https://leetcode.cn/studyplan/top-100-liked/",
+        validateInput: (value) => {
+            if (!value) {
+                return "URL is required";
+            }
+            if (!value.startsWith("https://leetcode.cn/") && !value.startsWith("https://leetcode.com/")) {
+                return "Please enter a valid LeetCode URL";
+            }
+            return null;
+        }
+    });
+
+    if (!url) {
+        return;
+    }
+
+    const name = await vscode.window.showInputBox({
+        prompt: "Enter problem list name (optional)",
+        placeHolder: "Auto-generated from URL",
+    });
+
+    try {
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Creating problem list from URL...",
+            cancellable: false
+        }, async (progress) => {
+            progress.report({ message: "Fetching problems from URL..." });
+            const problemList = await problemListManager.createProblemListFromURL(url, name);
+            progress.report({ message: "Problem list created successfully!" });
+            
+            vscode.window.showInformationMessage(`Created problem list: ${problemList.name} with ${problemList.problems.length} problems`);
+            leetCodeTreeDataProvider.refresh();
+        });
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to create problem list from URL: ${error}`);
     }
 }
 
 export async function manageProblemLists(): Promise<void> {
     const items = [
         {
-            label: "🔄 Sync Official Lists",
+            label: "🌐 Create from URL",
+            description: "Create problem list from LeetCode URL",
+            command: "leetcode.createProblemListFromURL",
+        },
+        {
+            label: "🔄 Sync Predefined Lists",
             description: "Sync LeetCode Hot 100, Top Interview 150, etc.",
-            command: "leetcode.syncOfficialProblemLists",
+            command: "leetcode.syncPredefinedProblemLists",
         },
         {
             label: "➕ Create New Problem List",

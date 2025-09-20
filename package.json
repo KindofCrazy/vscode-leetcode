@@ -173,10 +173,16 @@
             "icon": "$(gear)"
         },
         {
-            "command": "leetcode.syncOfficialProblemLists",
-            "title": "Sync Official Problem Lists",
+            "command": "leetcode.syncPredefinedProblemLists",
+            "title": "Sync Predefined Problem Lists",
             "category": "LeetCode",
             "icon": "$(sync)"
+        },
+        {
+            "command": "leetcode.createProblemListFromURL",
+            "title": "Create Problem List from URL",
+            "category": "LeetCode",
+            "icon": "$(globe)"
         }
         ],
         "viewsContainers": {
@@ -238,11 +244,16 @@
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@4"
                 },
-                {
-                    "command": "leetcode.syncOfficialProblemLists",
-                    "when": "view == leetCodeExplorer",
-                    "group": "overflow@5"
-                }
+        {
+            "command": "leetcode.syncPredefinedProblemLists",
+            "when": "view == leetCodeExplorer",
+            "group": "overflow@5"
+        },
+        {
+            "command": "leetcode.createProblemListFromURL",
+            "when": "view == leetCodeExplorer",
+            "group": "overflow@6"
+        }
             ],
             "view/item/context": [
                 {

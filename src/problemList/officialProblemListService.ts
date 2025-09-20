@@ -4,85 +4,82 @@
 import * as vscode from "vscode";
 import { IProblemList } from "../shared";
 
-export interface OfficialProblemList {
+export interface URLBasedProblemList {
     id: string;
     name: string;
     description: string;
+    url: string;
     problems: string[]; // Array of problem IDs
 }
 
-class OfficialProblemListService {
-    private readonly officialLists: OfficialProblemList[] = [
-        {
-            id: "hot100",
-            name: "🔥 LeetCode Hot 100",
-            description: "The most popular 100 problems on LeetCode",
-            problems: []
-        },
-        {
-            id: "top_interview_150",
-            name: "📋 Top Interview 150",
-            description: "LeetCode's official top interview questions",
-            problems: []
-        },
-        {
-            id: "leetcode_75",
-            name: "🎯 LeetCode 75",
-            description: "LeetCode's official 75 study plan",
-            problems: []
-        },
-        {
-            id: "dynamic_programming",
-            name: "💡 Dynamic Programming",
-            description: "Essential dynamic programming problems",
-            problems: []
-        },
-        {
-            id: "binary_search",
-            name: "🔍 Binary Search",
-            description: "Binary search and related problems",
-            problems: []
-        },
-        {
-            id: "two_pointers",
-            name: "👆 Two Pointers",
-            description: "Two pointers technique problems",
-            problems: []
-        },
-        {
-            id: "sliding_window",
-            name: "🪟 Sliding Window",
-            description: "Sliding window technique problems",
-            problems: []
-        },
-        {
-            id: "tree_traversal",
-            name: "🌳 Tree Traversal",
-            description: "Tree traversal and manipulation problems",
-            problems: []
-        },
-        {
-            id: "graph_algorithms",
-            name: "🕸️ Graph Algorithms",
-            description: "Graph algorithms and traversal problems",
-            problems: []
-        },
-        {
-            id: "backtracking",
-            name: "🔙 Backtracking",
-            description: "Backtracking and recursion problems",
-            problems: []
-        }
-    ];
+class URLBasedProblemListService {
+    private urlBasedLists: Map<string, URLBasedProblemList> = new Map();
 
-    public async syncOfficialProblemLists(): Promise<IProblemList[]> {
+    constructor() {
+        this.initializePredefinedURLs();
+    }
+
+    private initializePredefinedURLs(): void {
+        // Add some predefined popular LeetCode study plans
+        const predefinedURLs: URLBasedProblemList[] = [
+            {
+                id: "hot100",
+                name: "🔥 LeetCode Hot 100",
+                description: "LeetCode 热题 100 - 最受刷题发烧友欢迎的 100 道题",
+                url: "https://leetcode.cn/studyplan/top-100-liked/",
+                problems: []
+            },
+            {
+                id: "top_interview_150",
+                name: "📋 Top Interview 150",
+                description: "LeetCode 精选 TOP 面试题",
+                url: "https://leetcode.cn/problem-list/2ckc81c/",
+                problems: []
+            },
+            {
+                id: "leetcode_75",
+                name: "🎯 LeetCode 75",
+                description: "LeetCode 75 题学习计划",
+                url: "https://leetcode.cn/studyplan/leetcode-75/",
+                problems: []
+            }
+        ];
+
+        for (const list of predefinedURLs) {
+            this.urlBasedLists.set(list.id, list);
+        }
+    }
+
+    public async createProblemListFromURL(url: string, name?: string): Promise<IProblemList> {
+        try {
+            // Extract problem IDs from the URL
+            const problems = await this.extractProblemsFromURL(url);
+            
+            const id = `url_${Date.now()}`;
+            const problemList: IProblemList = {
+                id,
+                name: name || this.extractNameFromURL(url),
+                description: `Problem list from ${url}`,
+                isOfficial: false,
+                problems: problems,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            return problemList;
+        } catch (error) {
+            throw new Error(`Failed to create problem list from URL: ${error}`);
+        }
+    }
+
+    public async syncPredefinedLists(): Promise<IProblemList[]> {
         const syncedLists: IProblemList[] = [];
         
-        for (const list of this.officialLists) {
+        for (const list of this.urlBasedLists.values()) {
             try {
-                const problems = await this.fetchProblemsForList(list.id);
+                const problems = await this.extractProblemsFromURL(list.url);
                 const problemList: IProblemList = {
-                    id: `official_${list.id}`,
+                    id: `predefined_${list.id}`,
                     name: list.name,
                     description: list.description,
                     isOfficial: true,
@@ -95,7 +92,7 @@ class OfficialProblemListService {
                 console.error(`Failed to sync ${list.name}:`, error);
                 // Create empty list if sync fails
                 const problemList: IProblemList = {
-                    id: `official_${list.id}`,
+                    id: `predefined_${list.id}`,
                     name: list.name,
                     description: list.description,
                     isOfficial: true,
@@ -110,11 +107,34 @@ class OfficialProblemListService {
         return syncedLists;
     }
 
-    private async fetchProblemsForList(listId: string): Promise<string[]> {
-        // Use official LeetCode problem lists
-        // These are the actual problem IDs from LeetCode's official lists
-        const officialProblems: { [key: string]: string[] } = {
-            hot100: [
+    private async extractProblemsFromURL(url: string): Promise<string[]> {
+        try {
+            // For now, we'll use a simple approach to extract problem IDs
+            // In the future, this could be enhanced to actually fetch and parse the webpage
+            const response = await fetch(url);
+            const html = await response.text();
+            
+            // Extract problem IDs from the HTML content
+            // This is a simplified approach - in practice, you'd need more robust parsing
+            const problemIdRegex = /\/problems\/([^\/\?]+)/g;
+            const matches = html.match(problemIdRegex);
+            
+            if (matches) {
+                return matches.map(match => match.replace('/problems/', ''));
+            }
+            
+            return [];
+        } catch (error) {
+            console.error('Failed to fetch URL:', error);
+            // Fallback to predefined data for known URLs
+            return this.getFallbackProblems(url);
+        }
+    }
+
+    private getFallbackProblems(url: string): string[] {
+        // Fallback data for known URLs
+        const fallbackData: { [key: string]: string[] } = {
+            "https://leetcode.cn/studyplan/top-100-liked/": [
                 "1", "2", "3", "4", "5", "10", "11", "15", "17", "19",
                 "20", "21", "22", "23", "31", "32", "33", "34", "39", "42",
                 "46", "48", "49", "53", "55", "56", "62", "64", "70", "72",
@@ -128,7 +148,7 @@ class OfficialProblemListService {
                 "763", "771", "773", "787", "797", "815", "841", "853", "875", "909",
                 "973", "994", "1046", "1143", "1249", "1312", "1466", "1557", "1696", "1791"
             ],
-            top_interview_150: [
+            "https://leetcode.cn/problem-list/2ckc81c/": [
                 "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
                 "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
                 "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
@@ -145,7 +165,7 @@ class OfficialProblemListService {
                 "131", "132", "133", "134", "135", "136", "137", "138", "139", "140",
                 "141", "142", "143", "144", "145", "146", "147", "148", "149", "150"
             ],
-            leetcode_75: [
+            "https://leetcode.cn/studyplan/leetcode-75/": [
                 "1768", "1071", "1431", "605", "345", "151", "238", "334", "443", "283",
                 "392", "11", "1679", "643", "1456", "1732", "724", "2215", "205", "392",
                 "20", "155", "150", "739", "239", "209", "3", "424", "567", "76",
@@ -153,65 +173,39 @@ class OfficialProblemListService {
                 "121", "409", "589", "102", "199", "637", "429", "515", "116", "104",
                 "226", "101", "572", "235", "98", "230", "105", "106", "208", "211",
                 "1254", "695", "200", "130", "323", "261", "1584", "743", "787", "1971",
-                "1466", "399", "207", "210", "684", "685", "547", "1319", "1584", "990",
-                "399", "207", "210", "684", "685", "547", "1319", "1584", "990", "399"
-            ],
-            dynamic_programming: [
-                "70", "198", "213", "746", "121", "122", "123", "188", "309", "714",
-                "53", "918", "152", "1567", "1014", "1218", "873", "1025", "1269", "2320",
-                "300", "673", "674", "368", "646", "376", "334", "673", "368", "646",
-                "5", "647", "516", "1312", "1143", "72", "97", "115", "583", "712",
-                "322", "518", "377", "343", "279", "91", "139", "140", "377", "343",
-                "416", "1049", "494", "474", "879", "518", "377", "343", "279", "91"
-            ],
-            binary_search: [
-                "704", "35", "34", "69", "367", "374", "278", "162", "153", "154",
-                "33", "81", "4", "240", "74", "167", "209", "875", "1011", "410",
-                "1482", "1552", "1760", "2187", "2226", "2300", "2439", "2528", "2560", "2616"
-            ],
-            two_pointers: [
-                "125", "680", "392", "167", "15", "16", "18", "11", "42", "633",
-                "345", "680", "88", "283", "27", "26", "80", "75", "31", "556",
-                "581", "611", "713", "977", "1089", "1099", "1208", "1498", "1570", "1610"
-            ],
-            sliding_window: [
-                "3", "76", "209", "424", "438", "567", "713", "1004", "1208", "1493",
-                "1838", "1984", "2024", "2090", "2134", "2200", "2269", "2379", "2461", "2537"
-            ],
-            tree_traversal: [
-                "94", "144", "145", "102", "107", "103", "199", "637", "429", "515",
-                "116", "117", "104", "111", "226", "101", "572", "100", "235", "236",
-                "98", "230", "105", "106", "113", "129", "257", "112", "113", "437",
-                "543", "687", "124", "297", "331", "449", "450", "501", "508", "530"
-            ],
-            graph_algorithms: [
-                "200", "695", "130", "323", "261", "1584", "743", "787", "1971", "1466",
-                "399", "207", "210", "684", "685", "547", "1319", "1584", "990", "399",
-                "133", "207", "210", "684", "685", "547", "1319", "1584", "990", "399"
-            ],
-            backtracking: [
-                "17", "22", "39", "40", "46", "47", "77", "78", "90", "93",
-                "131", "216", "306", "357", "401", "526", "784", "842", "1079", "1219",
-                "1239", "1240", "1255", "1258", "1268", "1286", "1291", "1315", "1316", "1349"
+                "1466", "399", "207", "210", "684", "685", "547", "1319", "1584", "990"
             ]
         };
 
-        return officialProblems[listId] || [];
+        return fallbackData[url] || [];
     }
 
-    public getAvailableLists(): OfficialProblemList[] {
-        return this.officialLists;
+    private extractNameFromURL(url: string): string {
+        // Extract a meaningful name from the URL
+        if (url.includes('top-100-liked')) {
+            return '🔥 LeetCode Hot 100';
+        } else if (url.includes('2ckc81c')) {
+            return '📋 Top Interview 150';
+        } else if (url.includes('leetcode-75')) {
+            return '🎯 LeetCode 75';
+        } else {
+            return 'Custom Problem List';
+        }
     }
 
-    public async refreshOfficialLists(): Promise<void> {
+    public getPredefinedURLs(): URLBasedProblemList[] {
+        return Array.from(this.urlBasedLists.values());
+    }
+
+    public async refreshPredefinedLists(): Promise<void> {
         try {
             await vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
-                title: "Syncing official problem lists...",
+                title: "Syncing predefined problem lists...",
                 cancellable: false
             }, async (progress) => {
-                progress.report({ message: "Fetching LeetCode official lists..." });
-                const syncedLists = await this.syncOfficialProblemLists();
+                progress.report({ message: "Fetching LeetCode predefined lists..." });
+                const syncedLists = await this.syncPredefinedLists();
                 
                 // Update the problem list manager with synced data
                 const { problemListManager } = await import("./problemListManager");
@@ -219,14 +213,14 @@ class OfficialProblemListService {
                     await problemListManager.updateProblemList(list.id, list);
                 }
                 
-                progress.report({ message: "Official lists synced successfully!" });
+                progress.report({ message: "Predefined lists synced successfully!" });
             });
             
-            vscode.window.showInformationMessage("Official problem lists synced successfully!");
+            vscode.window.showInformationMessage("Predefined problem lists synced successfully!");
         } catch (error) {
-            vscode.window.showErrorMessage(`Failed to sync official lists: ${error}`);
+            vscode.window.showErrorMessage(`Failed to sync predefined lists: ${error}`);
         }
     }
 }
 
-export const officialProblemListService = new OfficialProblemListService();
+export const urlBasedProblemListService = new URLBasedProblemListService();

@@ -106,7 +106,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             vscode.commands.registerCommand("leetcode.addProblemToList", (node: LeetCodeNode) => problemList.addProblemToList(node.id)),
             vscode.commands.registerCommand("leetcode.removeProblemFromList", (node: LeetCodeNode) => problemList.removeProblemFromList(node.id)),
             vscode.commands.registerCommand("leetcode.manageProblemLists", () => problemList.manageProblemLists()),
-            vscode.commands.registerCommand("leetcode.syncOfficialProblemLists", () => problemList.syncOfficialProblemLists())
+            vscode.commands.registerCommand("leetcode.syncPredefinedProblemLists", () => problemList.syncPredefinedProblemLists()),
+        vscode.commands.registerCommand("leetcode.createProblemListFromURL", () => problemList.createProblemListFromURL())
         );
 
         await leetCodeExecutor.switchEndpoint(plugin.getLeetCodeEndpoint());
