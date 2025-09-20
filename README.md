@@ -1,26 +1,114 @@
-# LeetCode
+# LeetCode Enhanced
 
-> Solve LeetCode problems in VS Code
+> Solve LeetCode problems in VS Code with enhanced split view and problem list management
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LeetCode-OpenSource/vscode-leetcode/master/resources/LeetCode.png" alt="">
 </p>
 <p align="center">
-  <a href="https://github.com/LeetCode-OpenSource/vscode-leetcode/actions?query=workflow%3ACI+branch%3Amaster">
-    <img src="https://img.shields.io/github/workflow/status/LeetCode-OpenSource/vscode-leetcode/CI/master?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode/actions?query=workflow%3ACI+branch%3Amaster">
+    <img src="https://img.shields.io/github/workflow/status/KindofCrazy/vscode-leetcode/CI/master?style=flat-square" alt="">
   </a>
-  <a href="https://gitter.im/vscode-leetcode/Lobby">
-    <img src="https://img.shields.io/gitter/room/LeetCode-OpenSource/vscode-leetcode.svg?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode">
+    <img src="https://img.shields.io/github/stars/KindofCrazy/vscode-leetcode.svg?style=flat-square" alt="">
   </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=LeetCode.vscode-leetcode">
-    <img src="https://img.shields.io/visual-studio-marketplace/d/LeetCode.vscode-leetcode.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/LeetCode-OpenSource/vscode-leetcode.svg?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/KindofCrazy/vscode-leetcode.svg?style=flat-square" alt="">
   </a>
 </p>
 
-- English Document | [中文文档](https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/docs/README_zh-CN.md)
+## 🚀 Enhanced Features
+
+This is an enhanced version of the original [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) extension with the following improvements:
+
+### ✨ New Features
+
+#### 1. **Split View Mode** 
+- **Description on Left, Code on Right**: When viewing a problem, the description automatically opens in the left column and the code editor in the right column
+- **Consistent Layout**: All related views (submit results, test results, description) open in the left column for better organization
+- **Configurable**: Can be enabled/disabled via `leetcode.enableSplitView` setting
+
+#### 2. **Problem List Management**
+- **Custom Problem Lists**: Create and manage your own problem lists
+- **Official Lists Support**: Support for both official LeetCode problem lists and custom lists
+- **Easy Management**: Right-click on problems to add/remove from lists
+- **Persistent Storage**: Problem lists are saved locally and persist across VS Code sessions
+
+### 🔧 Enhanced Functionality
+
+#### **Improved User Experience**
+- **Better Layout**: All webview panels (submit, test, description) now respect the split view setting
+- **Consistent Behavior**: Unified display behavior across all LeetCode-related views
+- **Smart Positioning**: Views automatically position themselves based on your split view preference
+
+#### **New Commands**
+- `LeetCode: Create Problem List` - Create a new custom problem list
+- `LeetCode: Delete Problem List` - Delete an existing problem list  
+- `LeetCode: Add to Problem List` - Add current problem to a list
+- `LeetCode: Remove from Problem List` - Remove current problem from a list
+- `LeetCode: Manage Problem Lists` - Open problem list management interface
+
+#### **New Settings**
+- `leetcode.enableSplitView` - Enable/disable split view mode (default: true)
+
+## 📋 Comparison with Original Extension
+
+| Feature | Original | Enhanced |
+|---------|----------|----------|
+| **Split View** | ❌ No | ✅ Yes - Description left, code right |
+| **Problem Lists** | ❌ No | ✅ Yes - Custom and official lists |
+| **View Consistency** | ❌ Mixed | ✅ Yes - All views respect split setting |
+| **List Management** | ❌ No | ✅ Yes - Full CRUD operations |
+| **Layout Control** | ❌ Limited | ✅ Yes - Configurable split behavior |
+
+## 🎯 Quick Start
+
+### Installation
+
+1. **Download the extension**:
+   ```bash
+   # Download the .vsix file from releases
+   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   ```
+
+2. **Or install from source**:
+   ```bash
+   git clone https://github.com/KindofCrazy/vscode-leetcode.git
+   cd vscode-leetcode
+   npm install
+   npm run compile
+   vsce package
+   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   ```
+
+### Basic Usage
+
+1. **Sign in to LeetCode** using the LeetCode Explorer panel
+2. **Browse problems** - click any problem to open it with split view
+3. **Create problem lists** - right-click on problems to add them to lists
+4. **Manage your lists** - use the Problem List section in the explorer
+
+## 🔧 Configuration
+
+### Split View Settings
+
+```json
+{
+  "leetcode.enableSplitView": true  // Enable split view mode
+}
+```
+
+### Problem List Management
+
+- **Create List**: Use `LeetCode: Create Problem List` command
+- **Add Problems**: Right-click on any problem → "Add to Problem List"
+- **Manage Lists**: Use `LeetCode: Manage Problem Lists` command
+
+## Requirements
+
+- [VS Code 1.30.1+](https://code.visualstudio.com/)
+- [Node.js 10+](https://nodejs.org)
+  > NOTE: Please make sure that `Node` is in your `PATH` environment variable. You can also use the setting `leetcode.nodePath` to specify the location of your `Node.js` executable.
 
 ## ❗️ Attention ❗️- Workaround to login to LeetCode endpoint
 
@@ -31,16 +119,6 @@ Recently we observed that [the extension cannot login to leetcode.com endpoint a
 Thanks for [@yihong0618](https://github.com/yihong0618) provided a workaround which can somehow mitigate this. Now you can simply click the `Sign In` button and then select `Third Party` login or `Cookie` login.
 
 > Note: If you want to use third-party login(**Recommended**), please make sure your account has been connected to the third-party. If you want to use `Cookie` login, click [here](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478#issuecomment-564757098) to see the steps.
-
-## Requirements
-
-- [VS Code 1.30.1+](https://code.visualstudio.com/)
-- [Node.js 10+](https://nodejs.org)
-  > NOTE: Please make sure that `Node` is in your `PATH` environment variable. You can also use the setting `leetcode.nodePath` to specify the location of your `Node.js` executable.
-
-## Quick Start
-
-![demo](https://raw.githubusercontent.com/LeetCode-OpenSource/vscode-leetcode/master/docs/gifs/demo.gif)
 
 ## Features
 
@@ -132,6 +210,9 @@ Thanks for [@yihong0618](https://github.com/yihong0618) provided a workaround wh
 
 | Setting Name                      | Description                                                                                                                                                                                                                                                   | Default Value      |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **🆕 Enhanced Settings**          |                                                                                                                                                                                                                                                               |                    |
+| `leetcode.enableSplitView`        | **NEW**: Enable split view mode - description on left, code editor on right                                                                                                                                                                                  | `true`             |
+| **Original Settings**             |                                                                                                                                                                                                                                                               |                    |
 | `leetcode.hideSolved`             | Specify to hide the solved problems or not                                                                                                                                                                                                                    | `false`            |
 | `leetcode.defaultLanguage`        | Specify the default language used to solve the problem. Supported languages are: `bash`, `c`, `cpp`, `csharp`, `golang`, `java`, `javascript`, `kotlin`, `mysql`, `php`, `python`,`python3`,`ruby`,`rust`, `scala`, `swift`, `typescript`                     | `N/A`              |
 | `leetcode.useWsl`                 | Specify whether to use WSL or not                                                                                                                                                                                                                             | `false`            |
@@ -148,17 +229,81 @@ Thanks for [@yihong0618](https://github.com/yihong0618) provided a workaround wh
 | `leetcode.problems.sortStrategy`  | Specify sorting strategy for problems list                                                                                                                                                                                                                    | `None`             |
 | `leetcode.allowReportData`        | Allow LeetCode to report anonymous usage data to improve the product. list                                                                                                                                                                                    | `true`             |
 
+## 📁 File Structure
+
+```
+src/
+├── commands/
+│   ├── problemList.ts          # New: Problem list management commands
+│   └── show.ts                 # Enhanced: Split view support
+├── problemList/
+│   └── problemListManager.ts   # New: Problem list data management
+├── webview/
+│   ├── leetCodePreviewProvider.ts    # Enhanced: Split view support
+│   └── leetCodeSubmissionProvider.ts # Enhanced: Split view support
+└── shared.ts                   # Enhanced: New interfaces and types
+```
+
+## 🆕 What's New in This Version
+
+### Version 0.18.5
+- ✅ **Split View Mode**: Description and code editor side-by-side layout
+- ✅ **Problem List System**: Create, manage, and organize custom problem lists
+- ✅ **Consistent View Behavior**: All LeetCode views respect split view setting
+- ✅ **Enhanced User Experience**: Better layout and organization
+- ✅ **New Commands**: Full problem list management commands
+- ✅ **Configuration Options**: Customizable split view behavior
+
+## 🔄 Migration from Original Extension
+
+1. **Backup your settings** (optional)
+2. **Uninstall the original extension**
+3. **Install this enhanced version**
+4. **Your existing problems and settings will be preserved**
+
+## 🤝 Contributing
+
+This project is based on the original [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) extension.
+
+### Original Features Preserved
+- All original LeetCode functionality
+- Sign in/out capabilities
+- Problem browsing and solving
+- Test and submit functionality
+- All original settings and configurations
+
+### New Contributions
+- Split view layout system
+- Problem list management
+- Enhanced user interface
+- Improved view consistency
+
 ## Want Help?
 
 When you meet any problem, you can check out the [Troubleshooting](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/Troubleshooting) and [FAQ](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/FAQ) first.
 
-If your problem still cannot be addressed, feel free to reach us in the [Gitter Channel](https://gitter.im/vscode-leetcode/Lobby) or [file an issue](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/new/choose).
+If your problem still cannot be addressed, feel free to reach us in the [Gitter Channel](https://gitter.im/vscode-leetcode/Lobby) or [file an issue](https://github.com/KindofCrazy/vscode-leetcode/issues/new/choose).
 
 ## Release Notes
 
 Refer to [CHANGELOG](https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/CHANGELOG.md)
 
-## Acknowledgement
+## 📝 License
 
-- This extension is based on [@skygragon](https://github.com/skygragon)'s [leetcode-cli](https://github.com/skygragon/leetcode-cli) open source project.
-- Special thanks to our [contributors](https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/ACKNOWLEDGEMENTS.md).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Original Project**: Based on [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) by [@LeetCode-OpenSource](https://github.com/LeetCode-OpenSource)
+- **Core CLI**: Built on [leetcode-cli](https://github.com/skygragon/leetcode-cli) by [@skygragon](https://github.com/skygragon)
+- **Contributors**: Thanks to all contributors of the original project
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/KindofCrazy/vscode-leetcode/issues)
+- **Documentation**: [Wiki](https://github.com/KindofCrazy/vscode-leetcode/wiki)
+- **Original Project**: [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode)
+
+---
+
+**Note**: This is an enhanced fork of the original vscode-leetcode extension. All original functionality is preserved while adding new features for better user experience.
