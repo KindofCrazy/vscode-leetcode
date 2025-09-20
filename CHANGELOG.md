@@ -14,11 +14,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - **Planned**: Update tracking for source URLs
 - **Planned**: Enhanced error handling and user experience
 
-### 📅 Development Timeline
-- **Q1 2024**: Core URL import functionality for study plans
-- **Q2 2024**: Enhanced URL validation and error handling
-- **Q3 2024**: Progress sync and update tracking
-- **Q4 2024**: Advanced features and user experience improvements
 
 ## [0.18.5]
 ### Added

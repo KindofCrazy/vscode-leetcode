@@ -315,22 +315,6 @@ We are actively developing a **URL-based Problem Sets** feature that will make i
 - **Error Handling**: Clear error messages for invalid or inaccessible URLs
 - **Import History**: Keep track of previously imported problem sets
 
-#### 📅 Development Timeline
-
-- **Phase 1 (Q1 2024)**: Core URL import functionality for study plans
-- **Phase 2 (Q2 2024)**: Enhanced URL validation and error handling
-- **Phase 3 (Q3 2024)**: Progress sync and update tracking
-- **Phase 4 (Q4 2024)**: Advanced features and user experience improvements
-
-#### 🤝 Contributing to Development
-
-We welcome community contributions for the URL-based Problem Sets feature:
-
-- **Feature Requests**: Share your ideas on our [GitHub Issues](https://github.com/KindofCrazy/vscode-leetcode/issues)
-- **Beta Testing**: Join our beta program to test new features early
-- **Code Contributions**: Help us build the future of LeetCode problem solving
-- **Feedback**: Your input shapes our development priorities
-
 > **Note**: The URL-based Problem Sets feature is our top priority for 2024. We're committed to making problem set creation as simple as pasting a URL.
 
 ## 🔄 Migration from Original Extension
