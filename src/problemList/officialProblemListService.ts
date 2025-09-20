@@ -1,7 +1,6 @@
 // Copyright (c) jdneo. All rights reserved.
 // Licensed under the MIT license.
 
-import * as vscode from "vscode";
 import { IProblemList } from "../shared";
 
 export interface URLBasedProblemList {
@@ -14,7 +13,7 @@ export interface URLBasedProblemList {
 
 class URLBasedProblemListService {
     constructor() {
-        // No predefined URLs - all lists are created from user input
+        // All problem lists are created from user-provided URLs
     }
 
     public async createProblemListFromURL(url: string, name?: string): Promise<IProblemList> {
@@ -39,10 +38,6 @@ class URLBasedProblemListService {
         }
     }
 
-    public async syncPredefinedLists(): Promise<IProblemList[]> {
-        // No predefined lists to sync - all lists are created from user input
-        return [];
-    }
 
     private async extractProblemsFromURL(url: string): Promise<string[]> {
         try {
@@ -63,7 +58,7 @@ class URLBasedProblemListService {
             return [];
         } catch (error) {
             console.error('Failed to fetch URL:', error);
-            // Fallback to predefined data for known URLs
+            // No fallback data available
             return this.getFallbackProblems(url);
         }
     }
@@ -90,10 +85,6 @@ class URLBasedProblemListService {
         }
     }
 
-    public async refreshPredefinedLists(): Promise<void> {
-        // No predefined lists to refresh
-        vscode.window.showInformationMessage("No predefined lists to sync. Use 'Create from URL' to add problem lists.");
-    }
 }
 
 export const urlBasedProblemListService = new URLBasedProblemListService();

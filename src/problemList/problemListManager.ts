@@ -4,7 +4,6 @@
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import * as vscode from "vscode";
 import { IProblemList } from "../shared";
 import { urlBasedProblemListService } from "./officialProblemListService";
 
@@ -144,10 +143,6 @@ class ProblemListManager {
         }
     }
 
-    public async refreshPredefinedLists(): Promise<void> {
-        // No predefined lists to refresh
-        vscode.window.showInformationMessage("No predefined lists to sync. Use 'Create from URL' to add problem lists.");
-    }
 
     public async createProblemListFromURL(url: string, name?: string): Promise<IProblemList> {
         const problemList = await urlBasedProblemListService.createProblemListFromURL(url, name);

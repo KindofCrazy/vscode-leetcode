@@ -4,7 +4,6 @@
 import * as vscode from "vscode";
 import { problemListManager } from "../problemList/problemListManager";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
-import { urlBasedProblemListService } from "../problemList/officialProblemListService";
 
 export async function createProblemList(): Promise<void> {
     const name = await vscode.window.showInputBox({
@@ -130,14 +129,6 @@ export async function removeProblemFromList(problemId: string): Promise<void> {
     }
 }
 
-export async function syncPredefinedProblemLists(): Promise<void> {
-    try {
-        await urlBasedProblemListService.refreshPredefinedLists();
-        leetCodeTreeDataProvider.refresh();
-    } catch (error) {
-        vscode.window.showErrorMessage(`Failed to sync predefined problem lists: ${error}`);
-    }
-}
 
 export async function createProblemListFromURL(): Promise<void> {
     const url = await vscode.window.showInputBox({
