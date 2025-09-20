@@ -63,15 +63,31 @@
 
 - [English Document](https://github.com/KindofCrazy/vscode-leetcode#requirements) | 中文文档
 
-## ❗️ 注意 ❗️- 无法登录 LeetCode 节点的临时解决办法
+## ❗️ 登录建议 ❗️
 
-> 注意：如果使用的是 `leetcode.cn` 账户，可以跳过此段落。
+> **推荐**：使用 Cookie 登录以获得此增强版插件的最佳体验。
 
-近期我们发现插件出现了[无法登录 leetcode.com 节点的问题](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478)。原因是因为近期 leetcode.com 改变了登录机制，目前我们暂时没有找到解决该问题的完美解决方案。
+### 为什么推荐 Cookie 登录
 
-感谢 [@yihong0618](https://github.com/yihong0618) 提供了一个临时解决办法。现在你可以直接点击登录按钮并选择第三方登录或者 `Cookie` 登录。
+- **网页授权** 可能会跳转到原始 LeetCode 插件
+- **Cookie 登录** 可以直接访问此增强版本
+- **更可靠** 对于增强功能（分屏显示、题单管理）
 
-> 注意：如果你希望使用第三方登录（**推荐**），请确保你的账户已经与第三方账户连接。如果你希望通过 `Cookie` 登录，请点击[该连接](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478#issuecomment-564757098)查看登录步骤。
+### 如何使用 Cookie 登录
+
+1. **获取您的 LeetCode Cookie**：
+   - 在浏览器中打开 LeetCode 网站
+   - 按 F12 打开开发者工具
+   - 转到 Application/Storage → Cookies
+   - 复制 `LEETCODE_SESSION` cookie 的值
+
+2. **使用 Cookie 登录**：
+   - 在 LeetCode Explorer 中点击 `Sign In`
+   - 选择 `LeetCode Cookie`（标记为推荐）
+   - 粘贴您的 cookie 值
+   - 登录成功！
+
+> **注意**：如果您使用的是 `leetcode.cn`，过程相同，但请使用中文 LeetCode 网站。
 
 ## 🎯 快速开始
 

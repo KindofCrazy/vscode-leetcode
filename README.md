@@ -112,15 +112,31 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 - [Node.js 10+](https://nodejs.org)
   > NOTE: Please make sure that `Node` is in your `PATH` environment variable. You can also use the setting `leetcode.nodePath` to specify the location of your `Node.js` executable.
 
-## ❗️ Attention ❗️- Workaround to login to LeetCode endpoint
+## ❗️ Login Recommendation ❗️
 
-> Note: If you are using `leetcode.cn`, you can just ignore this section.
+> **Recommended**: Use Cookie login for the best experience with this enhanced extension.
 
-Recently we observed that [the extension cannot login to leetcode.com endpoint anymore](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478). The root cause of this issue is that leetcode.com changed its login mechanism and so far there is no ideal way to fix that issue.
+### Why Cookie Login is Recommended
 
-Thanks for [@yihong0618](https://github.com/yihong0618) provided a workaround which can somehow mitigate this. Now you can simply click the `Sign In` button and then select `Third Party` login or `Cookie` login.
+- **Web Authorization** may redirect to the original LeetCode extension
+- **Cookie Login** provides direct access to this enhanced version
+- **More Reliable** for the enhanced features (split view, problem lists)
 
-> Note: If you want to use third-party login(**Recommended**), please make sure your account has been connected to the third-party. If you want to use `Cookie` login, click [here](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478#issuecomment-564757098) to see the steps.
+### How to Use Cookie Login
+
+1. **Get your LeetCode Cookie**:
+   - Open LeetCode website in your browser
+   - Press F12 to open Developer Tools
+   - Go to Application/Storage → Cookies
+   - Copy the value of `LEETCODE_SESSION` cookie
+
+2. **Login with Cookie**:
+   - Click `Sign In` in the LeetCode Explorer
+   - Select `LeetCode Cookie` (marked as Recommended)
+   - Paste your cookie value
+   - You're logged in!
+
+> **Note**: If you're using `leetcode.cn`, the process is the same but use the Chinese LeetCode website.
 
 ## Features
 

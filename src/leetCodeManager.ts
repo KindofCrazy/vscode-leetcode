@@ -90,15 +90,15 @@ class LeetCodeManager extends EventEmitter {
         const picks: Array<IQuickItemEx<string>> = []
         picks.push(
             {
-                label: 'Web Authorization',
-                detail: 'Open browser to authorize login on the website',
-                value: 'WebAuth',
-                description: '[Recommended]'
-            },
-            {
                 label: 'LeetCode Cookie',
                 detail: 'Use LeetCode cookie copied from browser to login',
                 value: 'Cookie',
+                description: '[Recommended]'
+            },
+            {
+                label: 'Web Authorization',
+                detail: 'Open browser to authorize login on the website (may redirect to original extension)',
+                value: 'WebAuth',
             }
         )
 
