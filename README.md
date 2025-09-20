@@ -31,7 +31,7 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 #### 2. **Problem List Management**
 - **Custom Problem Lists**: Create and manage your own problem lists
 - **Official Lists Support**: Support for both official LeetCode problem lists and custom lists
-- **Auto-Sync Official Lists**: Automatically sync LeetCode Hot 100, Top Interview 150, LeetCode 75, and more
+- **URL-Based Problem Lists**: Create problem lists from any LeetCode study plan or problem list URL
 - **Easy Management**: Right-click on problems to add/remove from lists
 - **Persistent Storage**: Problem lists are saved locally and persist across VS Code sessions
 
@@ -48,7 +48,7 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 - `LeetCode: Add to Problem List` - Add current problem to a list
 - `LeetCode: Remove from Problem List` - Remove current problem from a list
 - `LeetCode: Manage Problem Lists` - Open problem list management interface
-- `LeetCode: Sync Official Problem Lists` - Sync LeetCode Hot 100, Top Interview 150, etc.
+- `LeetCode: Create Problem List from URL` - Create problem lists from LeetCode URLs
 
 #### **New Settings**
 - `leetcode.enableSplitView` - Enable/disable split view mode (default: true)
@@ -107,20 +107,14 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 - **Create List**: Use `LeetCode: Create Problem List` command
 - **Add Problems**: Right-click on any problem → "Add to Problem List"
 - **Manage Lists**: Use `LeetCode: Manage Problem Lists` command
-- **Sync Official Lists**: Use `LeetCode: Sync Official Problem Lists` command
+- **Create from URL**: Use `LeetCode: Create Problem List from URL` command
 
-#### Available Official Lists
+#### Supported URL Types
 
-- 🔥 **LeetCode Hot 100** - The most popular 100 problems
-- 📋 **Top Interview 150** - LeetCode's official top interview questions
-- 🎯 **LeetCode 75** - LeetCode's official 75 study plan
-- 💡 **Dynamic Programming** - Essential DP problems
-- 🔍 **Binary Search** - Binary search and related problems
-- 👆 **Two Pointers** - Two pointers technique problems
-- 🪟 **Sliding Window** - Sliding window technique problems
-- 🌳 **Tree Traversal** - Tree traversal and manipulation problems
-- 🕸️ **Graph Algorithms** - Graph algorithms and traversal problems
-- 🔙 **Backtracking** - Backtracking and recursion problems
+- 📚 **Study Plans** - Any LeetCode study plan URL (e.g., `/studyplan/top-100-liked/`)
+- 📋 **Problem Lists** - Any LeetCode problem list URL (e.g., `/problem-list/2ckc81c/`)
+- 🌐 **Both Domains** - Support for both leetcode.cn and leetcode.com
+- 🎯 **Auto-Naming** - Intelligent naming based on URL patterns
 
 ## Requirements
 

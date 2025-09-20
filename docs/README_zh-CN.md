@@ -31,7 +31,7 @@
 #### 2. **题单管理功能**
 - **自定义题单**：创建和管理您自己的题单
 - **官方题单支持**：支持 LeetCode 官方题单和自定义题单
-- **自动同步官方题单**：自动同步 LeetCode Hot 100、Top Interview 150、LeetCode 75 等热门题单
+- **基于URL的题单**：从任何LeetCode学习计划或题单URL创建题单
 - **便捷管理**：右键点击题目即可添加到题单或从题单中移除
 - **持久化存储**：题单保存在本地，在 VS Code 会话间保持
 
@@ -48,7 +48,7 @@
 - `LeetCode: Add to Problem List` - 将当前题目添加到题单
 - `LeetCode: Remove from Problem List` - 从题单中移除当前题目
 - `LeetCode: Manage Problem Lists` - 打开题单管理界面
-- `LeetCode: Sync Official Problem Lists` - 同步 LeetCode Hot 100、Top Interview 150 等官方题单
+- `LeetCode: Create Problem List from URL` - 从LeetCode URL创建题单
 
 #### **新增设置**
 - `leetcode.enableSplitView` - 启用/禁用分屏显示模式（默认：true）
@@ -133,20 +133,14 @@
 - **创建题单**：使用 `LeetCode: Create Problem List` 命令
 - **添加题目**：右键点击任意题目 → "Add to Problem List"
 - **管理题单**：使用 `LeetCode: Manage Problem Lists` 命令
-- **同步官方题单**：使用 `LeetCode: Sync Official Problem Lists` 命令
+- **从URL创建**：使用 `LeetCode: Create Problem List from URL` 命令
 
-#### 可用的官方题单
+#### 支持的URL类型
 
-- 🔥 **LeetCode Hot 100** - 最受欢迎的 100 道题目
-- 📋 **Top Interview 150** - LeetCode 官方顶级面试题
-- 🎯 **LeetCode 75** - LeetCode 官方 75 题学习计划
-- 💡 **动态规划** - 核心动态规划问题
-- 🔍 **二分查找** - 二分查找及相关问题
-- 👆 **双指针** - 双指针技巧问题
-- 🪟 **滑动窗口** - 滑动窗口技巧问题
-- 🌳 **树遍历** - 树遍历和操作问题
-- 🕸️ **图算法** - 图算法和遍历问题
-- 🔙 **回溯算法** - 回溯和递归问题
+- 📚 **学习计划** - 任何LeetCode学习计划URL（如：`/studyplan/top-100-liked/`）
+- 📋 **题单** - 任何LeetCode题单URL（如：`/problem-list/2ckc81c/`）
+- 🌐 **双域名支持** - 支持 leetcode.cn 和 leetcode.com
+- 🎯 **智能命名** - 根据URL模式智能命名
 
 ## 运行条件
 

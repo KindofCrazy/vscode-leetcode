@@ -70,16 +70,14 @@ class URLBasedProblemListService {
 
     private extractNameFromURL(url: string): string {
         // Extract a meaningful name from the URL
-        if (url.includes('top-100-liked')) {
-            return '🔥 LeetCode Hot 100';
-        } else if (url.includes('2ckc81c')) {
-            return '📋 Top Interview 150';
-        } else if (url.includes('leetcode-75')) {
-            return '🎯 LeetCode 75';
-        } else if (url.includes('studyplan')) {
+        if (url.includes('studyplan')) {
             return '📚 LeetCode Study Plan';
         } else if (url.includes('problem-list')) {
             return '📋 LeetCode Problem List';
+        } else if (url.includes('leetcode.cn')) {
+            return '🇨🇳 LeetCode 题单';
+        } else if (url.includes('leetcode.com')) {
+            return '🇺🇸 LeetCode Problem List';
         } else {
             return 'Custom Problem List';
         }
