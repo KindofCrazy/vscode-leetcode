@@ -1,6 +1,7 @@
 // Copyright (c) jdneo. All rights reserved.
 // Licensed under the MIT license.
 
+import * as vscode from "vscode";
 import { ViewColumn } from "vscode";
 import { openKeybindingsEditor, promptHintMessage } from "../utils/uiUtils";
 import { ILeetCodeWebviewOption, LeetCodeWebview } from "./LeetCodeWebview";
@@ -18,9 +19,13 @@ class LeetCodeSubmissionProvider extends LeetCodeWebview {
     }
 
     protected getWebviewOption(): ILeetCodeWebviewOption {
+        // Check if split view is enabled
+        const leetCodeConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("leetcode");
+        const enableSplitView: boolean = leetCodeConfig.get<boolean>("enableSplitView", true);
+        
         return {
             title: "Submission",
-            viewColumn: ViewColumn.Two,
+            viewColumn: enableSplitView ? ViewColumn.One : ViewColumn.Two,
         };
     }
 
