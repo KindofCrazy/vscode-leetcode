@@ -4,6 +4,7 @@
 import * as vscode from "vscode";
 import { problemListManager } from "../problemList/problemListManager";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
+import { officialProblemListService } from "../problemList/officialProblemListService";
 
 export async function createProblemList(): Promise<void> {
     const name = await vscode.window.showInputBox({
@@ -129,15 +130,29 @@ export async function removeProblemFromList(problemId: string): Promise<void> {
     }
 }
 
+export async function syncOfficialProblemLists(): Promise<void> {
+    try {
+        await officialProblemListService.refreshOfficialLists();
+        leetCodeTreeDataProvider.refresh();
+    } catch (error) {
+        vscode.window.showErrorMessage(`Failed to sync official problem lists: ${error}`);
+    }
+}
+
 export async function manageProblemLists(): Promise<void> {
     const items = [
         {
-            label: "Create New Problem List",
+            label: "🔄 Sync Official Lists",
+            description: "Sync LeetCode Hot 100, Top Interview 150, etc.",
+            command: "leetcode.syncOfficialProblemLists",
+        },
+        {
+            label: "➕ Create New Problem List",
             description: "Create a custom problem list",
             command: "leetcode.createProblemList",
         },
         {
-            label: "Delete Problem List",
+            label: "🗑️ Delete Problem List",
             description: "Delete a custom problem list",
             command: "leetcode.deleteProblemList",
         },

@@ -166,12 +166,18 @@
                 "category": "LeetCode",
                 "icon": "$(remove)"
             },
-            {
-                "command": "leetcode.manageProblemLists",
-                "title": "Manage Problem Lists",
-                "category": "LeetCode",
-                "icon": "$(gear)"
-            }
+        {
+            "command": "leetcode.manageProblemLists",
+            "title": "Manage Problem Lists",
+            "category": "LeetCode",
+            "icon": "$(gear)"
+        },
+        {
+            "command": "leetcode.syncOfficialProblemLists",
+            "title": "Sync Official Problem Lists",
+            "category": "LeetCode",
+            "icon": "$(sync)"
+        }
         ],
         "viewsContainers": {
             "activitybar": [
@@ -231,6 +237,11 @@
                     "command": "leetcode.manageProblemLists",
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@4"
+                },
+                {
+                    "command": "leetcode.syncOfficialProblemLists",
+                    "when": "view == leetCodeExplorer",
+                    "group": "overflow@5"
                 }
             ],
             "view/item/context": [

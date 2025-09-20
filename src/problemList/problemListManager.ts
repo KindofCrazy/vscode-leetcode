@@ -5,6 +5,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 import { IProblemList } from "../shared";
+import { officialProblemListService } from "./officialProblemListService";
 
 class ProblemListManager {
     private problemLists: Map<string, IProblemList> = new Map();
@@ -16,7 +17,7 @@ class ProblemListManager {
 
     public async initialize(): Promise<void> {
         await this.loadProblemLists();
-        await this.loadOfficialProblemLists();
+        await this.syncOfficialProblemLists();
     }
 
     public async createProblemList(name: string, description?: string): Promise<IProblemList> {
@@ -133,36 +134,23 @@ class ProblemListManager {
         }
     }
 
-    private async loadOfficialProblemLists(): Promise<void> {
-        // Load some predefined official problem lists
-        const officialLists: IProblemList[] = [
-            {
-                id: "official_top_interview_150",
-                name: "Top Interview 150",
-                description: "LeetCode's official top interview questions",
-                isOfficial: true,
-                problems: [], // Will be populated from LeetCode API
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-            {
-                id: "official_leetcode_75",
-                name: "LeetCode 75",
-                description: "LeetCode's official 75 study plan",
-                isOfficial: true,
-                problems: [], // Will be populated from LeetCode API
-                createdAt: new Date(),
-                updatedAt: new Date(),
-            },
-        ];
-
-        for (const list of officialLists) {
-            if (!this.problemLists.has(list.id)) {
+    private async syncOfficialProblemLists(): Promise<void> {
+        try {
+            const officialLists = await officialProblemListService.syncOfficialProblemLists();
+            
+            for (const list of officialLists) {
+                // Always update official lists to get latest data
                 this.problemLists.set(list.id, list);
             }
+            
+            await this.saveProblemLists();
+        } catch (error) {
+            console.error("Failed to sync official problem lists:", error);
         }
+    }
 
-        await this.saveProblemLists();
+    public async refreshOfficialLists(): Promise<void> {
+        await this.syncOfficialProblemLists();
     }
 }
 
