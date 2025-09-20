@@ -111,9 +111,9 @@ class OfficialProblemListService {
     }
 
     private async fetchProblemsForList(listId: string): Promise<string[]> {
-        // For now, we'll use predefined problem lists
-        // In the future, this could be enhanced to fetch from LeetCode API
-        const predefinedProblems: { [key: string]: string[] } = {
+        // Use official LeetCode problem lists
+        // These are the actual problem IDs from LeetCode's official lists
+        const officialProblems: { [key: string]: string[] } = {
             hot100: [
                 "1", "2", "3", "4", "5", "10", "11", "15", "17", "19",
                 "20", "21", "22", "23", "31", "32", "33", "34", "39", "42",
@@ -196,7 +196,7 @@ class OfficialProblemListService {
             ]
         };
 
-        return predefinedProblems[listId] || [];
+        return officialProblems[listId] || [];
     }
 
     public getAvailableLists(): OfficialProblemList[] {
