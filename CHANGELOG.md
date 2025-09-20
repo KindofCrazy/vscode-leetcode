@@ -5,28 +5,31 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased] - Future Development Plan
 
-### 🚀 Problem Sets (题单) Feature - Coming Soon
-- **Planned**: Comprehensive problem set management system
-- **Planned**: AI-powered problem set creation and recommendations
-- **Planned**: Advanced progress tracking and analytics
-- **Planned**: Study plans and learning paths
-- **Planned**: Community features and set sharing
-- **Planned**: Gamification and achievement system
+### 🚀 URL-Based Problem Sets (题单) Feature - Coming Soon
+- **Planned**: URL-based problem set creation from LeetCode study plans
+- **Planned**: Import problem lists from any LeetCode problem list URL
+- **Planned**: Company-specific problem list import functionality
+- **Planned**: URL validation and preview before import
+- **Planned**: Progress sync with original LeetCode study plans
+- **Planned**: Update tracking for source URLs
+- **Planned**: Enhanced error handling and user experience
 
 ### 📅 Development Timeline
-- **Q1 2024**: Core problem set creation and management
-- **Q2 2024**: Progress tracking and analytics  
-- **Q3 2024**: AI-powered features and recommendations
-- **Q4 2024**: Advanced learning features and community integration
+- **Q1 2024**: Core URL import functionality for study plans
+- **Q2 2024**: Enhanced URL validation and error handling
+- **Q3 2024**: Progress sync and update tracking
+- **Q4 2024**: Advanced features and user experience improvements
 
 ## [0.18.5]
 ### Added
 - Enhanced documentation with future development roadmap
-- Problem Sets feature planning and community engagement framework
+- URL-based Problem Sets feature planning and community engagement framework
+- Chinese documentation updates with future development plan
 
 ### Changed
-- Updated README with comprehensive future development plan
-- Added detailed feature roadmap for 2024
+- Updated README with URL-based problem set creation roadmap
+- Updated Chinese README with corresponding feature descriptions
+- Added detailed URL import feature roadmap for 2024
 
 ## [0.18.4]
 ### Added
