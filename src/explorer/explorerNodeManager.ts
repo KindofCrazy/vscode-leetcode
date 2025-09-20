@@ -141,7 +141,7 @@ class ExplorerNodeManager implements Disposable {
                 }), false));
             } else {
                 // Return problems in specific list
-                const listId = metaInfo[1];
+                const listId = metaInfo.slice(1).join('.'); // Handle IDs with dots
                 const problemList = problemListManager.getProblemList(listId);
                 if (problemList) {
                     for (const problemId of problemList.problems) {
