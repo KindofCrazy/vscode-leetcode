@@ -8,6 +8,7 @@ import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
 import { LeetCodeNode } from "./LeetCodeNode";
+import { problemListManager } from "../problemList/problemListManager";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
@@ -52,6 +53,10 @@ class ExplorerNodeManager implements Disposable {
             new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: Category.Favorite,
                 name: Category.Favorite,
+            }), false),
+            new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: Category.ProblemList,
+                name: Category.ProblemList,
             }), false),
         ];
     }
@@ -124,6 +129,32 @@ class ExplorerNodeManager implements Disposable {
         // The sub-category node's id is named as {Category.SubName}
         const metaInfo: string[] = id.split(".");
         const res: LeetCodeNode[] = [];
+        
+        if (metaInfo[0] === Category.ProblemList) {
+            // Handle problem list category
+            if (metaInfo.length === 1) {
+                // Return all problem lists
+                const problemLists = problemListManager.getAllProblemLists();
+                return problemLists.map(list => new LeetCodeNode(Object.assign({}, defaultProblem, {
+                    id: `problemList.${list.id}`,
+                    name: list.name,
+                }), false));
+            } else {
+                // Return problems in specific list
+                const listId = metaInfo[1];
+                const problemList = problemListManager.getProblemList(listId);
+                if (problemList) {
+                    for (const problemId of problemList.problems) {
+                        const problem = this.explorerNodeMap.get(problemId);
+                        if (problem) {
+                            res.push(problem);
+                        }
+                    }
+                }
+                return this.applySortingStrategy(res);
+            }
+        }
+        
         for (const node of this.explorerNodeMap.values()) {
             switch (metaInfo[0]) {
                 case Category.Company:

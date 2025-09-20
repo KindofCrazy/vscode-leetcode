@@ -191,23 +191,33 @@ async function showProblemInternal(node: IProblem): Promise<void> {
         const needTranslation: boolean = settingUtils.shouldUseEndpointTranslation();
 
         await leetCodeExecutor.showProblem(node, language, finalPath, descriptionConfig.showInComment, needTranslation);
-        const promises: any[] = [
-            vscode.window.showTextDocument(vscode.Uri.file(finalPath), {
-                preview: false,
-                viewColumn: vscode.ViewColumn.One,
-            }),
-            promptHintMessage(
-                "hint.commentDescription",
-                'You can config how to show the problem description through "leetcode.showDescription".',
-                "Open settings",
-                (): Promise<any> => openSettingsEditor("leetcode.showDescription")
-            ),
-        ];
-        if (descriptionConfig.showInWebview) {
-            promises.push(showDescriptionView(node));
-        }
+        
+        // Check if split view is enabled
+        const enableSplitView: boolean = leetCodeConfig.get<boolean>("enableSplitView", true);
+        
+        if (enableSplitView) {
+            // Show description in left column and code in right column
+            await showProblemWithSplitView(node, finalPath);
+        } else {
+            // Original behavior
+            const promises: any[] = [
+                vscode.window.showTextDocument(vscode.Uri.file(finalPath), {
+                    preview: false,
+                    viewColumn: vscode.ViewColumn.One,
+                }),
+                promptHintMessage(
+                    "hint.commentDescription",
+                    'You can config how to show the problem description through "leetcode.showDescription".',
+                    "Open settings",
+                    (): Promise<any> => openSettingsEditor("leetcode.showDescription")
+                ),
+            ];
+            if (descriptionConfig.showInWebview) {
+                promises.push(showDescriptionView(node));
+            }
 
-        await Promise.all(promises);
+            await Promise.all(promises);
+        }
     } catch (error) {
         await promptForOpenOutputChannel(`${error} Please open the output channel for details.`, DialogType.error);
     }
@@ -215,6 +225,31 @@ async function showProblemInternal(node: IProblem): Promise<void> {
 
 async function showDescriptionView(node: IProblem): Promise<void> {
     return previewProblem(node, vscode.workspace.getConfiguration("leetcode").get<boolean>("enableSideMode", true));
+}
+
+async function showProblemWithSplitView(node: IProblem, finalPath: string): Promise<void> {
+    try {
+        // Show description in left column (ViewColumn.One)
+        const needTranslation: boolean = settingUtils.shouldUseEndpointTranslation();
+        const descString: string = await leetCodeExecutor.getDescription(node.id, needTranslation);
+        leetCodePreviewProvider.show(descString, node, false); // false means not side mode, will use ViewColumn.One
+        
+        // Show code editor in right column (ViewColumn.Two)
+        await vscode.window.showTextDocument(vscode.Uri.file(finalPath), {
+            preview: false,
+            viewColumn: vscode.ViewColumn.Two,
+        });
+        
+        // Show hint message
+        await promptHintMessage(
+            "hint.commentDescription",
+            'You can config how to show the problem description through "leetcode.showDescription".',
+            "Open settings",
+            (): Promise<any> => openSettingsEditor("leetcode.showDescription")
+        );
+    } catch (error) {
+        await promptForOpenOutputChannel(`${error} Please open the output channel for details.`, DialogType.error);
+    }
 }
 async function parseProblemsToPicks(p: Promise<IProblem[]>): Promise<Array<IQuickItemEx<IProblem>>> {
     return new Promise(async (resolve: (res: Array<IQuickItemEx<IProblem>>) => void): Promise<void> => {

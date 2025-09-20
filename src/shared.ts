@@ -83,6 +83,16 @@ export interface IProblem {
     tags: string[];
 }
 
+export interface IProblemList {
+    id: string;
+    name: string;
+    description?: string;
+    isOfficial: boolean;
+    problems: string[]; // Array of problem IDs
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export const defaultProblem: IProblem = {
     isFavorite: false,
     locked: false,
@@ -101,6 +111,7 @@ export enum Category {
     Tag = "Tag",
     Company = "Company",
     Favorite = "Favorite",
+    ProblemList = "ProblemList",
 }
 
 export const supportedPlugins: string[] = ["company", "solution.discuss", "leetcode.cn"];

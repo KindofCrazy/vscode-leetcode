@@ -141,6 +141,36 @@
                 "title": "Sort Problems",
                 "category": "LeetCode",
                 "icon": "$(sort-precedence)"
+            },
+            {
+                "command": "leetcode.createProblemList",
+                "title": "Create Problem List",
+                "category": "LeetCode",
+                "icon": "$(add)"
+            },
+            {
+                "command": "leetcode.deleteProblemList",
+                "title": "Delete Problem List",
+                "category": "LeetCode",
+                "icon": "$(trash)"
+            },
+            {
+                "command": "leetcode.addProblemToList",
+                "title": "Add to Problem List",
+                "category": "LeetCode",
+                "icon": "$(add)"
+            },
+            {
+                "command": "leetcode.removeProblemFromList",
+                "title": "Remove from Problem List",
+                "category": "LeetCode",
+                "icon": "$(remove)"
+            },
+            {
+                "command": "leetcode.manageProblemLists",
+                "title": "Manage Problem Lists",
+                "category": "LeetCode",
+                "icon": "$(gear)"
             }
         ],
         "viewsContainers": {
@@ -196,6 +226,11 @@
                     "command": "leetcode.problems.sort",
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@3"
+                },
+                {
+                    "command": "leetcode.manageProblemLists",
+                    "when": "view == leetCodeExplorer",
+                    "group": "overflow@4"
                 }
             ],
             "view/item/context": [
@@ -223,6 +258,16 @@
                     "command": "leetcode.removeFavorite",
                     "when": "view == leetCodeExplorer && viewItem == problem-favorite",
                     "group": "inline"
+                },
+                {
+                    "command": "leetcode.addProblemToList",
+                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
+                    "group": "leetcode@4"
+                },
+                {
+                    "command": "leetcode.removeProblemFromList",
+                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
+                    "group": "leetcode@5"
                 }
             ],
             "commandPalette": [
@@ -705,6 +750,12 @@
                         "default": true,
                         "scope": "application",
                         "description": "Allow LeetCode to report anonymous usage data to improve the product."
+                    },
+                    "leetcode.enableSplitView": {
+                        "type": "boolean",
+                        "default": true,
+                        "scope": "application",
+                        "description": "Enable split view mode: description on left, code editor on right."
                     }
                 }
             }
