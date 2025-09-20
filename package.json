@@ -1,10 +1,10 @@
 {
-    "name": "vscode-leetcode",
-    "displayName": "LeetCode",
-    "description": "Solve LeetCode problems in VS Code",
-    "version": "0.18.4",
-    "author": "LeetCode",
-    "publisher": "LeetCode",
+    "name": "vscode-leetcode-enhanced",
+    "displayName": "LeetCode Enhanced",
+    "description": "Solve LeetCode problems in VS Code with split view and problem lists",
+    "version": "0.18.5",
+    "author": "KindofCrazy",
+    "publisher": "KindofCrazy",
     "license": "MIT",
     "icon": "resources/LeetCode.png",
     "engines": {
@@ -12,9 +12,9 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/LeetCode-OpenSource/vscode-leetcode"
+        "url": "https://github.com/KindofCrazy/vscode-leetcode"
     },
-    "homepage": "https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/README.md",
+    "homepage": "https://github.com/KindofCrazy/vscode-leetcode/blob/master/README.md",
     "categories": [
         "Other",
         "Snippets"
