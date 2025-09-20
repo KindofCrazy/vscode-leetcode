@@ -1,26 +1,67 @@
-# LeetCode
+# LeetCode Enhanced
 
-> 在 VS Code 中练习 LeetCode
+> 在 VS Code 中练习 LeetCode，支持增强的分屏显示和题单管理功能
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LeetCode-OpenSource/vscode-leetcode/master/resources/LeetCode.png" alt="">
 </p>
 <p align="center">
-  <a href="https://github.com/LeetCode-OpenSource/vscode-leetcode/actions?query=workflow%3ACI+branch%3Amaster">
-    <img src="https://img.shields.io/github/workflow/status/LeetCode-OpenSource/vscode-leetcode/CI/master?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode/actions?query=workflow%3ACI+branch%3Amaster">
+    <img src="https://img.shields.io/github/workflow/status/KindofCrazy/vscode-leetcode/CI/master?style=flat-square" alt="">
   </a>
-  <a href="https://gitter.im/vscode-leetcode/Lobby">
-    <img src="https://img.shields.io/gitter/room/LeetCode-OpenSource/vscode-leetcode.svg?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode">
+    <img src="https://img.shields.io/github/stars/KindofCrazy/vscode-leetcode.svg?style=flat-square" alt="">
   </a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=LeetCode.vscode-leetcode">
-    <img src="https://img.shields.io/visual-studio-marketplace/d/LeetCode.vscode-leetcode.svg?style=flat-square" alt="">
-  </a>
-  <a href="https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/LeetCode-OpenSource/vscode-leetcode.svg?style=flat-square" alt="">
+  <a href="https://github.com/KindofCrazy/vscode-leetcode/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/KindofCrazy/vscode-leetcode.svg?style=flat-square" alt="">
   </a>
 </p>
 
-- [English Document](https://github.com/LeetCode-OpenSource/vscode-leetcode#requirements) | 中文文档
+## 🚀 增强功能
+
+这是原始 [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) 插件的增强版本，包含以下改进：
+
+### ✨ 新增功能
+
+#### 1. **分屏显示模式** 
+- **左侧题目描述，右侧代码编辑器**：查看题目时，描述自动在左栏打开，代码编辑器在右栏打开
+- **统一布局**：所有相关视图（提交结果、测试结果、描述）都在左栏打开，布局更整齐
+- **可配置**：可通过 `leetcode.enableSplitView` 设置启用/禁用
+
+#### 2. **题单管理功能**
+- **自定义题单**：创建和管理您自己的题单
+- **官方题单支持**：支持 LeetCode 官方题单和自定义题单
+- **便捷管理**：右键点击题目即可添加到题单或从题单中移除
+- **持久化存储**：题单保存在本地，在 VS Code 会话间保持
+
+### 🔧 增强功能
+
+#### **改进的用户体验**
+- **更好的布局**：所有 webview 面板（提交、测试、描述）现在都遵循分屏设置
+- **一致的行为**：所有 LeetCode 相关视图都有统一的显示行为
+- **智能定位**：视图会根据您的分屏偏好自动定位
+
+#### **新增命令**
+- `LeetCode: Create Problem List` - 创建新的自定义题单
+- `LeetCode: Delete Problem List` - 删除现有题单  
+- `LeetCode: Add to Problem List` - 将当前题目添加到题单
+- `LeetCode: Remove from Problem List` - 从题单中移除当前题目
+- `LeetCode: Manage Problem Lists` - 打开题单管理界面
+
+#### **新增设置**
+- `leetcode.enableSplitView` - 启用/禁用分屏显示模式（默认：true）
+
+## 📋 与原始插件对比
+
+| 功能 | 原始版本 | 增强版本 |
+|------|----------|----------|
+| **分屏显示** | ❌ 无 | ✅ 有 - 描述在左，代码在右 |
+| **题单管理** | ❌ 无 | ✅ 有 - 自定义和官方题单 |
+| **视图一致性** | ❌ 混合 | ✅ 有 - 所有视图遵循分屏设置 |
+| **题单操作** | ❌ 无 | ✅ 有 - 完整的增删改查操作 |
+| **布局控制** | ❌ 有限 | ✅ 有 - 可配置的分屏行为 |
+
+- [English Document](https://github.com/KindofCrazy/vscode-leetcode#requirements) | 中文文档
 
 ## ❗️ 注意 ❗️- 无法登录 LeetCode 节点的临时解决办法
 
@@ -32,9 +73,52 @@
 
 > 注意：如果你希望使用第三方登录（**推荐**），请确保你的账户已经与第三方账户连接。如果你希望通过 `Cookie` 登录，请点击[该连接](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/478#issuecomment-564757098)查看登录步骤。
 
+## 🎯 快速开始
+
+### 安装方法
+
+1. **下载插件**：
+   ```bash
+   # 从发布页面下载 .vsix 文件
+   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   ```
+
+2. **或从源码安装**：
+   ```bash
+   git clone https://github.com/KindofCrazy/vscode-leetcode.git
+   cd vscode-leetcode
+   npm install
+   npm run compile
+   vsce package
+   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   ```
+
+### 基本使用
+
+1. **登录 LeetCode** 使用 LeetCode Explorer 面板
+2. **浏览题目** - 点击任意题目即可打开分屏显示
+3. **创建题单** - 右键点击题目添加到题单
+4. **管理题单** - 使用资源管理器中的题单部分
+
+## 🔧 配置说明
+
+### 分屏显示设置
+
+```json
+{
+  "leetcode.enableSplitView": true  // 启用分屏显示模式
+}
+```
+
+### 题单管理
+
+- **创建题单**：使用 `LeetCode: Create Problem List` 命令
+- **添加题目**：右键点击任意题目 → "Add to Problem List"
+- **管理题单**：使用 `LeetCode: Manage Problem Lists` 命令
+
 ## 运行条件
 
-- [VS Code 1.23.0+](https://code.visualstudio.com/)
+- [VS Code 1.30.1+](https://code.visualstudio.com/)
 - [Node.js 10+](https://nodejs.org)
   > 注意：请确保`Node`在`PATH`环境变量中。您也可以通过设定 `leetcode.nodePath` 选项来指定 `Node.js` 可执行文件的路径。
 
@@ -132,6 +216,9 @@
 
 | 配置项名称                        | 描述                                                                                                                                                                                                                                                                                                          | 默认值             |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| **🆕 增强设置**                   |                                                                                                                                                                                                                                                                                                                |                    |
+| `leetcode.enableSplitView`        | **新增**：启用分屏显示模式 - 描述在左侧，代码编辑器在右侧                                                                                                                                                                                                                                                      | `true`             |
+| **原始设置**                      |                                                                                                                                                                                                                                                                                                                |                    |
 | `leetcode.hideSolved`             | 指定是否要隐藏已解决的问题                                                                                                                                                                                                                                                                                    | `false`            |
 | `leetcode.defaultLanguage`        | 指定答题时使用的默认语言，可选语言有：`bash`, `c`, `cpp`, `csharp`, `golang`, `java`, `javascript`, `kotlin`, `mysql`, `php`, `python`,`python3`,`ruby`, `rust`, `scala`, `swift`, `typescript`                                                                                                               | `N/A`              |
 | `leetcode.useWsl`                 | 指定是否启用 WSL                                                                                                                                                                                                                                                                                              | `false`            |
@@ -146,17 +233,81 @@
 | `leetcode.useEndpointTranslation` | 是否显示翻译版本内容。                                                                                                                                                                                                                                                                                        | `true`             |
 | `leetcode.allowReportData`        | 为了更好的产品体验允许上报用户埋数据                                                                                                                                                                                                                                                                          | `true`             |
 
+## 📁 文件结构
+
+```
+src/
+├── commands/
+│   ├── problemList.ts          # 新增：题单管理命令
+│   └── show.ts                 # 增强：分屏显示支持
+├── problemList/
+│   └── problemListManager.ts   # 新增：题单数据管理
+├── webview/
+│   ├── leetCodePreviewProvider.ts    # 增强：分屏显示支持
+│   └── leetCodeSubmissionProvider.ts # 增强：分屏显示支持
+└── shared.ts                   # 增强：新接口和类型
+```
+
+## 🆕 本版本新增功能
+
+### 版本 0.18.5
+- ✅ **分屏显示模式**：题目描述和代码编辑器并排布局
+- ✅ **题单管理系统**：创建、管理和组织自定义题单
+- ✅ **视图行为一致**：所有 LeetCode 视图都遵循分屏设置
+- ✅ **增强用户体验**：更好的布局和组织
+- ✅ **新增命令**：完整的题单管理命令
+- ✅ **配置选项**：可自定义的分屏行为
+
+## 🔄 从原始插件迁移
+
+1. **备份您的设置**（可选）
+2. **卸载原始插件**
+3. **安装此增强版本**
+4. **您现有的题目和设置将被保留**
+
+## 🤝 贡献
+
+本项目基于原始 [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) 插件。
+
+### 保留的原始功能
+- 所有原始 LeetCode 功能
+- 登录/登出功能
+- 题目浏览和解答
+- 测试和提交功能
+- 所有原始设置和配置
+
+### 新增贡献
+- 分屏布局系统
+- 题单管理
+- 增强用户界面
+- 改进视图一致性
+
 ## 需要帮助？
 
 在遇到任何问题时，可以先查看一下[疑难解答](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/%E7%96%91%E9%9A%BE%E8%A7%A3%E7%AD%94)以及[常见问题](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)寻求帮助。
 
-如果您的问题依然没有解决，可以在 [Gitter Channel](https://gitter.im/vscode-leetcode/Lobby) 联系我们，或者您也可以[记录一个新的 issue](https://github.com/LeetCode-OpenSource/vscode-leetcode/issues/new/choose)。
+如果您的问题依然没有解决，可以在 [Gitter Channel](https://gitter.im/vscode-leetcode/Lobby) 联系我们，或者您也可以[记录一个新的 issue](https://github.com/KindofCrazy/vscode-leetcode/issues/new/choose)。
 
 ## 更新日志
 
 请参考[更新日志](https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/CHANGELOG.md)
 
-## 鸣谢
+## 📝 许可证
 
-- 本插件基于[@skygragon](https://github.com/skygragon)的[leetcode-cli](https://github.com/skygragon/leetcode-cli)开源项目制作。
-- 特别鸣谢这些[贡献者们](https://github.com/LeetCode-OpenSource/vscode-leetcode/blob/master/ACKNOWLEDGEMENTS.md)。
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🙏 致谢
+
+- **原始项目**：基于 [vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode) 由 [@LeetCode-OpenSource](https://github.com/LeetCode-OpenSource) 开发
+- **核心 CLI**：基于 [leetcode-cli](https://github.com/skygragon/leetcode-cli) 由 [@skygragon](https://github.com/skygragon) 开发
+- **贡献者**：感谢原始项目的所有贡献者
+
+## 📞 支持
+
+- **问题反馈**：[GitHub Issues](https://github.com/KindofCrazy/vscode-leetcode/issues)
+- **文档**：[Wiki](https://github.com/KindofCrazy/vscode-leetcode/wiki)
+- **原始项目**：[vscode-leetcode](https://github.com/LeetCode-OpenSource/vscode-leetcode)
+
+---
+
+**注意**：这是原始 vscode-leetcode 插件的增强版分支。在添加新功能以提供更好用户体验的同时，保留了所有原始功能。
