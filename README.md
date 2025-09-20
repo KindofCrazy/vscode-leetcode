@@ -315,7 +315,6 @@ We are actively developing a **URL-based Problem Sets** feature that will make i
 - **Error Handling**: Clear error messages for invalid or inaccessible URLs
 - **Import History**: Keep track of previously imported problem sets
 
-> **Note**: The URL-based Problem Sets feature is our top priority for 2024. We're committed to making problem set creation as simple as pasting a URL.
 
 ## 🔄 Migration from Original Extension
 
