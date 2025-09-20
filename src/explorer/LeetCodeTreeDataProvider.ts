@@ -28,7 +28,7 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         this.onDidChangeTreeDataEvent.fire(null);
     }
 
-    public async getTreeItem(element: LeetCodeNode): Promise<vscode.TreeItem> {
+    public getTreeItem(element: LeetCodeNode): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (element.id === "notSignIn") {
             return {
                 label: element.name,
@@ -49,7 +49,7 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
 
         return {
             label: element.isProblem ? `[${element.id}] ${element.name}` + this.parsePremiumUnLockIconPath(element) : element.name,
-            tooltip: await this.getSubCategoryTooltip(element),
+            tooltip: this.getSubCategoryTooltip(element),
             collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
             iconPath: this.parseIconPathFromProblemState(element),
             command: element.isProblem ? element.previewCommand : undefined,
@@ -58,7 +58,7 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         };
     }
 
-    public async getChildren(element?: LeetCodeNode | undefined): Promise<LeetCodeNode[]> {
+    public getChildren(element?: LeetCodeNode | undefined): LeetCodeNode[] {
         if (!leetCodeManager.getUser()) {
             return [
                 new LeetCodeNode(
@@ -86,12 +86,12 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
                 case Category.Company:
                     return explorerNodeManager.getAllCompanyNodes();
                 case Category.ProblemList:
-                    return await explorerNodeManager.getChildrenNodesById(element.id);
+                    return explorerNodeManager.getChildrenNodesById(element.id);
                 default:
                     if (element.isProblem) {
                         return [];
                     }
-                    return await explorerNodeManager.getChildrenNodesById(element.id);
+                    return explorerNodeManager.getChildrenNodesById(element.id);
             }
         }
     }
@@ -124,13 +124,13 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         return "";
     }
 
-    private async getSubCategoryTooltip(element: LeetCodeNode): Promise<string> {
+    private getSubCategoryTooltip(element: LeetCodeNode): string {
         // return '' unless it is a sub-category node
         if (element.isProblem || element.id === "ROOT" || element.id in Category) {
             return "";
         }
 
-        const childernNodes: LeetCodeNode[] = await explorerNodeManager.getChildrenNodesById(element.id);
+        const childernNodes: LeetCodeNode[] = explorerNodeManager.getChildrenNodesById(element.id);
 
         let acceptedNum: number = 0;
         let failedNum: number = 0;

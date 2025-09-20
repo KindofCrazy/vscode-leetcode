@@ -8,7 +8,7 @@ import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
 import { LeetCodeNode } from "./LeetCodeNode";
-// Import problemListManager lazily to avoid circular dependency
+import { problemListManager } from "../problemList/problemListManager";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
@@ -125,7 +125,7 @@ class ExplorerNodeManager implements Disposable {
         return this.applySortingStrategy(res);
     }
 
-    public async getChildrenNodesById(id: string): Promise<LeetCodeNode[]> {
+    public getChildrenNodesById(id: string): LeetCodeNode[] {
         // The sub-category node's id is named as {Category.SubName}
         const metaInfo: string[] = id.split(".");
         const res: LeetCodeNode[] = [];
@@ -133,16 +133,14 @@ class ExplorerNodeManager implements Disposable {
         if (metaInfo[0] === Category.ProblemList) {
             // Handle problem list category
             if (metaInfo.length === 1) {
-                // Return all problem lists - lazy import to avoid circular dependency
-                const { problemListManager } = await import("../problemList/problemListManager");
+                // Return all problem lists
                 const problemLists = problemListManager.getAllProblemLists();
                 return problemLists.map(list => new LeetCodeNode(Object.assign({}, defaultProblem, {
                     id: `problemList.${list.id}`,
                     name: list.name,
                 }), false));
             } else {
-                // Return problems in specific list - lazy import to avoid circular dependency
-                const { problemListManager } = await import("../problemList/problemListManager");
+                // Return problems in specific list
                 const listId = metaInfo.slice(1).join('.'); // Handle IDs with dots
                 const problemList = problemListManager.getProblemList(listId);
                 if (problemList) {
