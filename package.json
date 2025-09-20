@@ -141,43 +141,7 @@
                 "title": "Sort Problems",
                 "category": "LeetCode",
                 "icon": "$(sort-precedence)"
-            },
-            {
-                "command": "leetcode.createProblemList",
-                "title": "Create Problem List",
-                "category": "LeetCode",
-                "icon": "$(add)"
-            },
-            {
-                "command": "leetcode.deleteProblemList",
-                "title": "Delete Problem List",
-                "category": "LeetCode",
-                "icon": "$(trash)"
-            },
-            {
-                "command": "leetcode.addProblemToList",
-                "title": "Add to Problem List",
-                "category": "LeetCode",
-                "icon": "$(add)"
-            },
-            {
-                "command": "leetcode.removeProblemFromList",
-                "title": "Remove from Problem List",
-                "category": "LeetCode",
-                "icon": "$(remove)"
-            },
-        {
-            "command": "leetcode.manageProblemLists",
-            "title": "Manage Problem Lists",
-            "category": "LeetCode",
-            "icon": "$(gear)"
-        },
-        {
-            "command": "leetcode.createProblemListFromURL",
-            "title": "Create Problem List from URL",
-            "category": "LeetCode",
-            "icon": "$(globe)"
-        }
+            }
         ],
         "viewsContainers": {
             "activitybar": [
@@ -233,16 +197,6 @@
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@3"
                 },
-                {
-                    "command": "leetcode.manageProblemLists",
-                    "when": "view == leetCodeExplorer",
-                    "group": "overflow@4"
-                },
-        {
-            "command": "leetcode.createProblemListFromURL",
-            "when": "view == leetCodeExplorer",
-            "group": "overflow@6"
-        }
             ],
             "view/item/context": [
                 {
@@ -270,16 +224,6 @@
                     "when": "view == leetCodeExplorer && viewItem == problem-favorite",
                     "group": "inline"
                 },
-                {
-                    "command": "leetcode.addProblemToList",
-                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
-                    "group": "leetcode@4"
-                },
-                {
-                    "command": "leetcode.removeProblemFromList",
-                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
-                    "group": "leetcode@5"
-                }
             ],
             "commandPalette": [
                 {

@@ -8,7 +8,6 @@ import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
 import { LeetCodeNode } from "./LeetCodeNode";
-import { problemListManager } from "../problemList/problemListManager";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
@@ -53,10 +52,6 @@ class ExplorerNodeManager implements Disposable {
             new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: Category.Favorite,
                 name: Category.Favorite,
-            }), false),
-            new LeetCodeNode(Object.assign({}, defaultProblem, {
-                id: Category.ProblemList,
-                name: Category.ProblemList,
             }), false),
         ];
     }
@@ -111,18 +106,6 @@ class ExplorerNodeManager implements Disposable {
         return res;
     }
 
-    public getAllProblemListNodes(): LeetCodeNode[] {
-        const res: LeetCodeNode[] = [];
-        const problemLists = problemListManager.getAllProblemLists();
-        for (const list of problemLists) {
-            res.push(new LeetCodeNode(Object.assign({}, defaultProblem, {
-                id: `${Category.ProblemList}.${list.id}`,
-                name: list.name,
-            }), false));
-        }
-        this.sortSubCategoryNodes(res, Category.ProblemList);
-        return res;
-    }
 
     public getNodeById(id: string): LeetCodeNode | undefined {
         return this.explorerNodeMap.get(id);
@@ -143,20 +126,6 @@ class ExplorerNodeManager implements Disposable {
         const metaInfo: string[] = id.split(".");
         const res: LeetCodeNode[] = [];
         
-        if (metaInfo[0] === Category.ProblemList) {
-            // Handle problem list category - return problems in specific list
-            const listId = metaInfo.slice(1).join('.'); // Handle IDs with dots
-            const problemList = problemListManager.getProblemList(listId);
-            if (problemList) {
-                for (const problemId of problemList.problems) {
-                    const problem = this.explorerNodeMap.get(problemId);
-                    if (problem) {
-                        res.push(problem);
-                    }
-                }
-            }
-            return this.applySortingStrategy(res);
-        }
         
         for (const node of this.explorerNodeMap.values()) {
             switch (metaInfo[0]) {
