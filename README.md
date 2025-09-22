@@ -116,7 +116,7 @@ code --install-extension *.vsix
 #### Supported URL Types
 
 - 📚 **Study Plans** - Any LeetCode study plan URL (e.g., `/studyplan/top-100-liked/`)
-- 📋 **Problem Lists** - Any LeetCode problem list URL (e.g., `/problem-list/2ckc81c/`)
+- 📋 **Problem Lists** - Any LeetCode problem list URL (e.g., `/problem-list/2ckc81c/`) (Coming Soon)
 - 🌐 **Both Domains** - Support for both leetcode.cn and leetcode.com
 - 🎯 **Auto-Naming** - Intelligent naming based on URL patterns
 
