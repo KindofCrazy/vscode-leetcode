@@ -102,6 +102,7 @@ export enum Category {
     Tag = "Tag",
     Company = "Company",
     Favorite = "Favorite",
+    ProblemList = "Problem Lists",
 }
 
 export const supportedPlugins: string[] = ["company", "solution.discuss", "leetcode.cn"];
@@ -157,3 +158,23 @@ export const getUrl = (key: string) => {
             return urls[key];
     }
 };
+
+export interface Problem {
+    id: string;
+    title: string;
+    titleSlug: string;
+    difficulty: string;
+    frontendId: string;
+    questionId: string;
+    translatedTitle?: string;
+}
+
+export interface ProblemList {
+    id: string;
+    name: string;
+    description: string;
+    url: string;
+    problems: Problem[];
+    createdAt: string;
+    updatedAt: string;
+}

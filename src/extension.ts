@@ -11,6 +11,7 @@ import * as show from "./commands/show";
 import * as star from "./commands/star";
 import * as submit from "./commands/submit";
 import * as test from "./commands/test";
+import * as problemList from "./commands/problemList";
 import { explorerNodeManager } from "./explorer/explorerNodeManager";
 import { LeetCodeNode } from "./explorer/LeetCodeNode";
 import { leetCodeTreeDataProvider } from "./explorer/LeetCodeTreeDataProvider";
@@ -26,6 +27,7 @@ import { leetCodeSubmissionProvider } from "./webview/leetCodeSubmissionProvider
 import { markdownEngine } from "./webview/markdownEngine";
 import TrackData from "./utils/trackingUtils";
 import { globalState } from "./globalState";
+import { problemListManager } from "./problemList/problemListManager";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
     try {
@@ -40,6 +42,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
         leetCodeTreeDataProvider.initialize(context);
         globalState.initialize(context);
+        problemListManager.initialize(context);
+
 
         context.subscriptions.push(
             leetCodeStatusBarController,
@@ -98,6 +102,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             vscode.commands.registerCommand("leetcode.addFavorite", (node: LeetCodeNode) => star.addFavorite(node)),
             vscode.commands.registerCommand("leetcode.removeFavorite", (node: LeetCodeNode) => star.removeFavorite(node)),
             vscode.commands.registerCommand("leetcode.problems.sort", () => plugin.switchSortingStrategy()),
+            vscode.commands.registerCommand("leetcode.createProblemList", () => problemList.createProblemList()),
+            vscode.commands.registerCommand("leetcode.manageProblemLists", () => problemList.manageProblemLists()),
+            vscode.commands.registerCommand("leetcode.addToProblemList", () => problemList.addToProblemList()),
+            vscode.commands.registerCommand("leetcode.removeFromProblemList", () => problemList.removeFromProblemList()),
+            vscode.commands.registerCommand("leetcode.importProblemListFromUrl", () => problemList.importProblemListFromUrl()),
         );
 
         await leetCodeExecutor.switchEndpoint(plugin.getLeetCodeEndpoint());
@@ -112,3 +121,4 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 export function deactivate(): void {
     // Do nothing.
 }
+

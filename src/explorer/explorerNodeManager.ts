@@ -8,6 +8,7 @@ import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
 import { LeetCodeNode } from "./LeetCodeNode";
+import { problemListManager } from "../problemList/problemListManager";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
@@ -52,6 +53,10 @@ class ExplorerNodeManager implements Disposable {
             new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: Category.Favorite,
                 name: Category.Favorite,
+            }), false),
+            new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: Category.ProblemList,
+                name: Category.ProblemList,
             }), false),
         ];
     }
@@ -106,6 +111,25 @@ class ExplorerNodeManager implements Disposable {
         return res;
     }
 
+    public getAllProblemListNodes(): LeetCodeNode[] {
+        const res: LeetCodeNode[] = [];
+        const problemLists = problemListManager.getAllProblemLists();
+
+        for (const problemList of problemLists) {
+            res.push(new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: `${Category.ProblemList}.${problemList.id}`,
+                name: `${problemList.name} (${problemList.problems.length})`,
+            }), false));
+        }
+
+        // Sort by name
+        res.sort((a: LeetCodeNode, b: LeetCodeNode): number => {
+            return Number(a.name > b.name) - Number(a.name < b.name);
+        });
+
+        return res;
+    }
+
 
     public getNodeById(id: string): LeetCodeNode | undefined {
         return this.explorerNodeMap.get(id);
@@ -125,8 +149,25 @@ class ExplorerNodeManager implements Disposable {
         // The sub-category node's id is named as {Category.SubName}
         const metaInfo: string[] = id.split(".");
         const res: LeetCodeNode[] = [];
-        
-        
+
+        if (metaInfo[0] === Category.ProblemList) {
+            // Handle problem list children
+            const problemListId = metaInfo[1];
+            const problemList = problemListManager.getProblemList(problemListId);
+
+            if (problemList) {
+                for (const problem of problemList.problems) {
+                    // Find the corresponding LeetCode node
+                    const node = this.explorerNodeMap.get(problem.id);
+                    if (node) {
+                        res.push(node);
+                    }
+                }
+            }
+
+            return this.applySortingStrategy(res);
+        }
+
         for (const node of this.explorerNodeMap.values()) {
             switch (metaInfo[0]) {
                 case Category.Company:
