@@ -141,6 +141,36 @@
                 "title": "Sort Problems",
                 "category": "LeetCode",
                 "icon": "$(sort-precedence)"
+            },
+            {
+                "command": "leetcode.createProblemList",
+                "title": "Create Problem List",
+                "category": "LeetCode",
+                "icon": "$(plus)"
+            },
+            {
+                "command": "leetcode.manageProblemLists",
+                "title": "Manage Problem Lists",
+                "category": "LeetCode",
+                "icon": "$(list-unordered)"
+            },
+            {
+                "command": "leetcode.addToProblemList",
+                "title": "Add to Problem List",
+                "category": "LeetCode",
+                "icon": "$(plus)"
+            },
+            {
+                "command": "leetcode.removeFromProblemList",
+                "title": "Remove from Problem List",
+                "category": "LeetCode",
+                "icon": "$(dash)"
+            },
+            {
+                "command": "leetcode.importProblemListFromUrl",
+                "title": "Import Problem List from URL",
+                "category": "LeetCode",
+                "icon": "$(cloud-download)"
             }
         ],
         "viewsContainers": {
@@ -183,6 +213,11 @@
                     "group": "navigation@3"
                 },
                 {
+                    "command": "leetcode.createProblemList",
+                    "when": "view == leetCodeExplorer",
+                    "group": "navigation@4"
+                },
+                {
                     "command": "leetcode.signout",
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@1"
@@ -196,6 +231,11 @@
                     "command": "leetcode.problems.sort",
                     "when": "view == leetCodeExplorer",
                     "group": "overflow@3"
+                },
+                {
+                    "command": "leetcode.manageProblemLists",
+                    "when": "view == leetCodeExplorer",
+                    "group": "overflow@4"
                 }
             ],
             "view/item/context": [
@@ -223,6 +263,16 @@
                     "command": "leetcode.removeFavorite",
                     "when": "view == leetCodeExplorer && viewItem == problem-favorite",
                     "group": "inline"
+                },
+                {
+                    "command": "leetcode.addToProblemList",
+                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
+                    "group": "leetcode@4"
+                },
+                {
+                    "command": "leetcode.removeFromProblemList",
+                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
+                    "group": "leetcode@5"
                 }
             ],
             "commandPalette": [

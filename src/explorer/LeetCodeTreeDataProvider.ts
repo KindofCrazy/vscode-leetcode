@@ -9,6 +9,7 @@ import { Category, defaultProblem, ProblemState } from "../shared";
 import { explorerNodeManager } from "./explorerNodeManager";
 import { LeetCodeNode } from "./LeetCodeNode";
 import { globalState } from "../globalState";
+import { problemListManager } from "../problemList/problemListManager";
 
 export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCodeNode> {
     private context: vscode.ExtensionContext;
@@ -25,6 +26,13 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
 
     public async refresh(): Promise<void> {
         await explorerNodeManager.refreshCache();
+        this.onDidChangeTreeDataEvent.fire(null);
+    }
+
+    public refreshProblemLists(): void {
+        // For now, use full refresh to ensure UI updates immediately
+        // TODO: Implement proper partial refresh to maintain expanded states
+        console.log("refreshProblemLists: Performing full tree refresh to ensure UI updates");
         this.onDidChangeTreeDataEvent.fire(null);
     }
 
@@ -85,6 +93,8 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
                     return explorerNodeManager.getAllTagNodes();
                 case Category.Company:
                     return explorerNodeManager.getAllCompanyNodes();
+                case Category.ProblemList:
+                    return explorerNodeManager.getAllProblemListNodes();
                 default:
                     if (element.isProblem) {
                         return [];
@@ -123,8 +133,24 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
     }
 
     private getSubCategoryTooltip(element: LeetCodeNode): string {
-        // return '' unless it is a sub-category node
-        if (element.isProblem || element.id === "ROOT" || element.id in Category) {
+        // return '' for problem nodes or ROOT node
+        if (element.isProblem || element.id === "ROOT") {
+            return "";
+        }
+
+        // Check if this is the Problem Lists root category
+        if (element.id === Category.ProblemList) {
+            return this.getProblemListsRootTooltip();
+        }
+
+        // Check if this is a specific problem list node
+        const metaInfo = element.id.split(".");
+        if (metaInfo[0] === Category.ProblemList && metaInfo.length === 2) {
+            return this.getProblemListTooltip(element.id);
+        }
+
+        // For other sub-category nodes, use the original logic
+        if (element.id in Category) {
             return "";
         }
 
@@ -146,6 +172,85 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         }
 
         return [`AC: ${acceptedNum}`, `Failed: ${failedNum}`, `Total: ${childernNodes.length}`].join(os.EOL);
+    }
+
+    private getProblemListTooltip(problemListId: string): string {
+        const problemList = problemListManager.getProblemList(problemListId.split(".")[1]);
+
+        if (!problemList) {
+            return "";
+        }
+
+        // Calculate completion stats for all problems in this list
+        let acceptedNum: number = 0;
+        let failedNum: number = 0;
+
+        // Get all problems from categories if available, otherwise from flat list
+        const allProblems = problemList.categories
+            ? problemList.categories.reduce((acc: any[], cat: any) => acc.concat(cat.problems), [])
+            : problemList.problems;
+
+        for (const problem of allProblems) {
+            // Find the corresponding LeetCode node to get the state
+            const node = explorerNodeManager.getNodeById(problem.frontendId) || explorerNodeManager.getNodeById(problem.id);
+            if (node) {
+                switch (node.state) {
+                    case ProblemState.AC:
+                        acceptedNum++;
+                        break;
+                    case ProblemState.NotAC:
+                        failedNum++;
+                        break;
+                    default:
+                        // For consistency with other category tooltips, we don't count unknown problems
+                        break;
+                }
+            }
+        }
+
+        return [`AC: ${acceptedNum}`, `Failed: ${failedNum}`, `Total: ${allProblems.length}`].join(os.EOL);
+    }
+
+    private getProblemListsRootTooltip(): string {
+        const problemLists = problemListManager.getAllProblemLists();
+
+        if (!problemLists || problemLists.length === 0) {
+            return "No problem lists available";
+        }
+
+        // Calculate completion stats for all problems in all problem lists
+        let acceptedNum: number = 0;
+        let failedNum: number = 0;
+        let totalNum: number = 0;
+
+        for (const problemList of problemLists) {
+            // Get all problems from categories if available, otherwise from flat list
+            const allProblems = problemList.categories
+                ? problemList.categories.reduce((acc: any[], cat: any) => acc.concat(cat.problems), [])
+                : problemList.problems;
+
+            totalNum += allProblems.length;
+
+            for (const problem of allProblems) {
+                // Find the corresponding LeetCode node to get the state
+                const node = explorerNodeManager.getNodeById(problem.frontendId) || explorerNodeManager.getNodeById(problem.id);
+                if (node) {
+                    switch (node.state) {
+                        case ProblemState.AC:
+                            acceptedNum++;
+                            break;
+                        case ProblemState.NotAC:
+                            failedNum++;
+                            break;
+                        default:
+                            // For consistency with other category tooltips, we don't count unknown problems
+                            break;
+                    }
+                }
+            }
+        }
+
+        return [`AC: ${acceptedNum}`, `Failed: ${failedNum}`, `Total: ${totalNum}`].join(os.EOL);
     }
 }
 

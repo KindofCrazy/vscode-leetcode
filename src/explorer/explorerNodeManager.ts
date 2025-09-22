@@ -8,6 +8,7 @@ import { getSortingStrategy } from "../commands/plugin";
 import { Category, defaultProblem, ProblemState, SortingStrategy } from "../shared";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
 import { LeetCodeNode } from "./LeetCodeNode";
+import { problemListManager } from "../problemList/problemListManager";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, LeetCodeNode> = new Map<string, LeetCodeNode>();
@@ -52,6 +53,10 @@ class ExplorerNodeManager implements Disposable {
             new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: Category.Favorite,
                 name: Category.Favorite,
+            }), false),
+            new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: Category.ProblemList,
+                name: Category.ProblemList,
             }), false),
         ];
     }
@@ -106,6 +111,28 @@ class ExplorerNodeManager implements Disposable {
         return res;
     }
 
+    public getAllProblemListNodes(): LeetCodeNode[] {
+        const res: LeetCodeNode[] = [];
+        const problemLists = problemListManager.getAllProblemLists();
+
+        console.log(`ExplorerNodeManager: Getting ${problemLists.length} problem lists`);
+
+        for (const problemList of problemLists) {
+            res.push(new LeetCodeNode(Object.assign({}, defaultProblem, {
+                id: `${Category.ProblemList}.${problemList.id}`,
+                name: problemList.name,
+            }), false));
+        }
+
+        // Sort by name
+        res.sort((a: LeetCodeNode, b: LeetCodeNode): number => {
+            return Number(a.name > b.name) - Number(a.name < b.name);
+        });
+
+        console.log(`ExplorerNodeManager: Returning ${res.length} problem list nodes`);
+        return res;
+    }
+
 
     public getNodeById(id: string): LeetCodeNode | undefined {
         return this.explorerNodeMap.get(id);
@@ -122,11 +149,122 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public getChildrenNodesById(id: string): LeetCodeNode[] {
+        console.log(`ExplorerNodeManager: getChildrenNodesById called with ID: "${id}"`);
         // The sub-category node's id is named as {Category.SubName}
         const metaInfo: string[] = id.split(".");
         const res: LeetCodeNode[] = [];
-        
-        
+
+        console.log(`ExplorerNodeManager: Parsed metaInfo: [${metaInfo.join(', ')}] (length: ${metaInfo.length})`);
+
+        if (metaInfo[0] === Category.ProblemList) {
+            const problemListId = metaInfo[1];
+            const problemList = problemListManager.getProblemList(problemListId);
+
+            console.log(`ExplorerNodeManager: Getting children for problem list: ${problemListId}`);
+
+            if (problemList) {
+                console.log(`ExplorerNodeManager: Problem list details - name: ${problemList.name}, problems: ${problemList.problems.length}, categories: ${problemList.categories ? problemList.categories.length : 0}`);
+
+                // Check if this problem list has categories
+                if (problemList.categories && problemList.categories.length > 0) {
+                    console.log(`ExplorerNodeManager: Found problem list with ${problemList.categories.length} categories`);
+                    console.log(`ExplorerNodeManager: Categories: ${problemList.categories.map(cat => cat.name).join(', ')}`);
+
+                    // Check if this is a direct problem list request (metaInfo.length === 2)
+                    // or a category request (metaInfo.length === 3)
+                    if (metaInfo.length === 2) {
+                        console.log(`ExplorerNodeManager: metaInfo.length === 2, returning category nodes`);
+                        // Return category nodes
+                        for (const category of problemList.categories) {
+                            console.log(`ExplorerNodeManager: Creating category node: ${category.name} (ID: ${category.id})`);
+                        res.push(new LeetCodeNode(Object.assign({}, defaultProblem, {
+                            id: `${Category.ProblemList}.${problemListId}.category.${category.id}`,
+                            name: category.name,
+                        }), false));
+                        }
+                        console.log(`ExplorerNodeManager: Created ${res.length} category nodes with IDs: ${res.map(node => node.id).join(', ')}`);
+                    } else if (metaInfo.length === 4 && metaInfo[2] === 'category') {
+                        console.log(`ExplorerNodeManager: metaInfo.length === 4 and metaInfo[2] === 'category', this is a category node request: ${metaInfo[3]}`);
+                        // This is a category node request with new format: ProblemList.listId.category.categoryId
+                        const categoryId = metaInfo[3];
+                        const category = problemList.categories.find(cat => cat.id === categoryId);
+
+                        if (category) {
+                            console.log(`ExplorerNodeManager: Found category "${category.name}" with ${category.problems.length} problems`);
+
+                            for (const problem of category.problems) {
+                                let node = this.explorerNodeMap.get(problem.frontendId) || this.explorerNodeMap.get(problem.id);
+                                if (!node) {
+                                    console.log(`Creating new node for problem: ${problem.title}`);
+                                    const problemData = Object.assign({}, defaultProblem, {
+                                        id: problem.frontendId || problem.id,
+                                        name: problem.title,
+                                        difficulty: problem.difficulty || "Unknown",
+                                        state: ProblemState.Unknown
+                                    });
+                                    node = new LeetCodeNode(problemData, true);
+                                }
+                                res.push(node);
+                            }
+                        }
+                        console.log(`ExplorerNodeManager: Returning ${res.length} problem nodes for category`);
+                        return this.applySortingStrategy(res);
+                    } else if (metaInfo.length === 3) {
+                        console.log(`ExplorerNodeManager: metaInfo.length === 3 but metaInfo[2] !== 'category', checking if category name matches: ${metaInfo[2]}`);
+                        // This might be an old format or error case
+                        const categoryId = metaInfo[2];
+                        const category = problemList.categories.find(cat => cat.name === categoryId);
+                        if (category) {
+                            console.log(`ExplorerNodeManager: Found category "${category.name}" with ${category.problems.length} problems`);
+
+                            for (const problem of category.problems) {
+                                let node = this.explorerNodeMap.get(problem.frontendId) || this.explorerNodeMap.get(problem.id);
+                                if (!node) {
+                                    console.log(`Creating new node for problem: ${problem.title}`);
+                                    const problemData = Object.assign({}, defaultProblem, {
+                                        id: problem.frontendId || problem.id,
+                                        name: problem.title,
+                                        difficulty: problem.difficulty || "Unknown",
+                                        state: ProblemState.Unknown
+                                    });
+                                    node = new LeetCodeNode(problemData, true);
+                                }
+                                res.push(node);
+                            }
+                        }
+                        console.log(`ExplorerNodeManager: Returning ${res.length} problem nodes for category (fallback)`);
+                        return this.applySortingStrategy(res);
+                    }
+                } else {
+                    console.log(`ExplorerNodeManager: No categories found, using ${problemList.problems.length} problems as fallback`);
+
+                    // Return problem nodes (backward compatibility)
+                    for (const problem of problemList.problems) {
+                        // First try to find the corresponding LeetCode node from existing problems
+                        let node = this.explorerNodeMap.get(problem.frontendId) || this.explorerNodeMap.get(problem.id);
+
+                        if (!node) {
+                            // If not found, create a new node for this problem
+                            console.log(`Creating new node for problem: ${problem.title}`);
+                            const problemData = Object.assign({}, defaultProblem, {
+                                id: problem.frontendId || problem.id,
+                                name: problem.title,
+                                difficulty: problem.difficulty || "Unknown",
+                                state: ProblemState.Unknown
+                            });
+                            node = new LeetCodeNode(problemData, true); // true indicates this is a problem node
+                        }
+
+                        res.push(node);
+                    }
+                }
+            }
+
+            console.log(`ExplorerNodeManager: Returning ${res.length} nodes`);
+            return res;
+        }
+
+
         for (const node of this.explorerNodeMap.values()) {
             switch (metaInfo[0]) {
                 case Category.Company:
