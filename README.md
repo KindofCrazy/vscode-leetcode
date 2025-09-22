@@ -23,7 +23,7 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 
 ### ✨ New Features
 
-#### 1. **Split View Mode** 
+#### 1. **Split View Mode**
 - **Description on Left, Code on Right**: When viewing a problem, the description automatically opens in the left column and the code editor in the right column
 - **Consistent Layout**: All related views (submit results, test results, description) open in the left column for better organization
 - **Configurable**: Can be enabled/disabled via `leetcode.enableSplitView` setting
@@ -43,12 +43,10 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 - **Smart Positioning**: Views automatically position themselves based on your split view preference
 
 #### **New Commands**
-- `LeetCode: Create Problem List` - Create a new custom problem list
-- `LeetCode: Delete Problem List` - Delete an existing problem list  
+- `LeetCode: Create Problem List` - Create a new custom problem list (empty or from URL)
+- `LeetCode: Manage Problem Lists` - View and manage existing problem lists
 - `LeetCode: Add to Problem List` - Add current problem to a list
 - `LeetCode: Remove from Problem List` - Remove current problem from a list
-- `LeetCode: Manage Problem Lists` - Open problem list management interface
-- `LeetCode: Create Problem List from URL` - Create problem lists from LeetCode URLs
 
 #### **New Settings**
 - `leetcode.enableSplitView` - Enable/disable split view mode (default: true)
@@ -69,21 +67,27 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 
 ### Installation
 
-1. **Download the extension**:
+#### Option 1: Install from VS Code Marketplace *(Coming Soon)*
+- Search for "LeetCode Enhanced" in the VS Code Extensions marketplace
+- Click Install
+- *Note: Currently pending approval, please use Option 2 or 3 for now*
+
+#### Option 2: Install from GitHub Releases
+1. **Download the latest .vsix file** from [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases)
+2. **Install via VS Code**:
    ```bash
-   # Download the .vsix file from releases
-   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   code --install-extension vscode-leetcode-enhanced-[version].vsix
    ```
 
-2. **Or install from source**:
-   ```bash
-   git clone https://github.com/KindofCrazy/vscode-leetcode.git
-   cd vscode-leetcode
-   npm install
-   npm run compile
-   vsce package
-   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
-   ```
+#### Option 3: Install from Source
+```bash
+git clone https://github.com/KindofCrazy/vscode-leetcode.git
+cd vscode-leetcode
+npm install
+npm run compile
+vsce package
+code --install-extension *.vsix
+```
 
 ### Basic Usage
 
@@ -107,7 +111,7 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 - **Create List**: Use `LeetCode: Create Problem List` command
 - **Add Problems**: Right-click on any problem → "Add to Problem List"
 - **Manage Lists**: Use `LeetCode: Manage Problem Lists` command
-- **Create from URL**: Use `LeetCode: Create Problem List from URL` command
+- **Create from URL**: Use `LeetCode: Create Problem List` command (select "Import from URL" option)
 
 #### Supported URL Types
 
