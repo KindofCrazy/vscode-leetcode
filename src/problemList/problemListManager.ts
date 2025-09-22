@@ -150,23 +150,42 @@ export class ProblemListManager {
     /**
      * Add a problem to a list
      */
-    public async addProblemToList(listId: string, problem: Problem): Promise<void> {
+    public async addProblemToList(listId: string, problem: Problem, categoryId?: string): Promise<void> {
         const list = this.problemLists.get(listId);
         if (!list) {
             throw new Error(`Problem list with id ${listId} not found`);
         }
 
-        // Check if problem already exists
+        // Check if problem already exists in the main list
         if (list.problems.some(p => p.id === problem.id)) {
             throw new Error(`Problem ${problem.title} already exists in the list`);
         }
 
-        list.problems.push(problem);
+        // If no category specified, just add to main list (backward compatibility)
+        if (!categoryId || !list.categories || list.categories.length === 0) {
+            list.problems.push(problem);
+            console.log(`ProblemListManager: Added problem "${problem.title}" to list "${list.name}" (main list). List now has ${list.problems.length} problems.`);
+        } else {
+            // Find the specified category
+            const category = list.categories.find(cat => cat.id === categoryId);
+            if (!category) {
+                throw new Error(`Category with id ${categoryId} not found in list ${list.name}`);
+            }
+
+            // Check if problem already exists in this category
+            if (category.problems.some(p => p.id === problem.id)) {
+                throw new Error(`Problem ${problem.title} already exists in category ${category.name}`);
+            }
+
+            // Add to both main list and category
+            list.problems.push(problem);
+            category.problems.push(problem);
+
+            console.log(`ProblemListManager: Added problem "${problem.title}" to list "${list.name}" (category: ${category.name}). Category now has ${category.problems.length} problems.`);
+        }
+
         list.updatedAt = new Date().toISOString();
-
         await this.saveProblemLists();
-
-        console.log(`ProblemListManager: Added problem "${problem.title}" to list "${list.name}". List now has ${list.problems.length} problems.`);
     }
 
     /**
@@ -185,8 +204,19 @@ export class ProblemListManager {
 
         const removedProblem = list.problems[index];
         list.problems.splice(index, 1);
-        list.updatedAt = new Date().toISOString();
 
+        // Also remove from all categories that contain this problem
+        if (list.categories && list.categories.length > 0) {
+            for (const category of list.categories) {
+                const categoryIndex = category.problems.findIndex(p => p.id === problemId);
+                if (categoryIndex !== -1) {
+                    category.problems.splice(categoryIndex, 1);
+                    console.log(`ProblemListManager: Also removed problem "${removedProblem.title}" from category "${category.name}". Category now has ${category.problems.length} problems.`);
+                }
+            }
+        }
+
+        list.updatedAt = new Date().toISOString();
         await this.saveProblemLists();
 
         console.log(`ProblemListManager: Removed problem "${removedProblem.title}" from list "${list.name}". List now has ${list.problems.length} problems.`);
@@ -204,42 +234,59 @@ export class ProblemListManager {
     /**
      * Import problems from URL using LeetCode GraphQL API
      */
-    public async importFromUrl(url: string): Promise<ProblemList> {
+    public async importFromUrl(url: string, customName?: string): Promise<ProblemList> {
         // Validate URL
         if (!isValidLeetCodeUrl(url)) {
             throw new Error("Invalid LeetCode URL. Please provide a valid study plan, problem list, or tag URL.");
         }
 
-        try {
-            // Fetch problems from the URL
-            const { name, problems } = await fetchProblemsFromUrl(url);
+        // Fetch problems from the URL
+        const { name: urlName, problems, categories } = await fetchProblemsFromUrl(url);
 
-            // Create the problem list
-            const list = await this.createProblemList(name, `Imported from ${url}`, url);
-
-            // Add all fetched problems to the list
-            list.problems = problems;
-            list.updatedAt = new Date().toISOString();
-
-            // Save the updated list
-            await this.saveProblemLists();
-
-            console.log(`ProblemListManager: Successfully imported ${problems.length} problems from URL: ${url}`);
-
-            return list;
-
-        } catch (error) {
-            console.error("Failed to import from URL:", error);
-
-            // If GraphQL fails, create an empty list as fallback
-            const fallbackName = this.extractNameFromUrl(url);
-            const fallbackList = await this.createProblemList(fallbackName, `Imported from ${url} (manual population required)`, url);
-
-            console.log(`ProblemListManager: Created empty fallback list "${fallbackName}" due to import error`);
-
-            // Return the fallback list instead of throwing error
-            return fallbackList;
+        if (!problems || problems.length === 0) {
+            throw new Error("No problems found from the provided URL.");
         }
+
+        // Use custom name if provided, otherwise use the name from URL
+        const finalName = customName && customName.trim() ? customName.trim() : urlName;
+
+        // Create the problem list
+        const list = await this.createProblemList(finalName, `Imported from ${url}`, url);
+
+        // Add all fetched problems to the list
+        list.problems = problems;
+
+        // If categories are available, add them to the list
+        if (categories && categories.length > 0) {
+            list.categories = categories.map(cat => ({
+                id: cat.id,
+                name: cat.name,
+                slug: cat.slug,
+                problems: cat.problems || []
+            }));
+            console.log(`ProblemListManager: Added ${categories.length} categories to the problem list`);
+            console.log(`ProblemListManager: Categories: ${categories.map(cat => cat.name).join(', ')}`);
+            console.log(`ProblemListManager: Total problems: ${problems.length}, Categories problems: ${categories.reduce((sum, cat) => sum + (cat.problems?.length || 0), 0)}`);
+        } else {
+            console.log(`ProblemListManager: No categories provided, using flat problem list with ${problems.length} problems`);
+        }
+
+        list.updatedAt = new Date().toISOString();
+
+        // Save the updated list
+        await this.saveProblemLists();
+
+        // Verify the saved data
+        const savedList = this.getProblemList(list.id);
+        if (savedList && savedList.categories && savedList.categories.length > 0) {
+            console.log(`ProblemListManager: Verified saved data - list: ${savedList.name}, categories: ${savedList.categories.map(cat => cat.name).join(', ')}`);
+        } else {
+            console.log(`ProblemListManager: Verified saved data - list: ${savedList?.name}, no categories found`);
+        }
+
+        console.log(`ProblemListManager: Successfully imported ${problems.length} problems from URL: ${url}`);
+
+        return list;
     }
 
     /**
@@ -249,30 +296,7 @@ export class ProblemListManager {
         return `list_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     }
 
-    /**
-     * Extract a meaningful name from URL
-     */
-    private extractNameFromUrl(url: string): string {
-        // Try to extract name from URL patterns
-        const patterns = [
-            /studyplan\/([^\/]+)/,
-            /problem-list\/([^\/]+)/,
-            /tag\/([^\/]+)/,
-            /company\/([^\/]+)/
-        ];
-
-        for (const pattern of patterns) {
-            const match = url.match(pattern);
-            if (match) {
-                return match[1].replace(/-/g, ' ').replace(/_/g, ' ')
-                    .split(' ')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-            }
-        }
-
-        return "Imported Problem List";
-    }
+    // (removed unused helper methods)
 }
 
 // Export singleton instance

@@ -1,9 +1,8 @@
 // Copyright (c) jdneo. All rights reserved.
 // Licensed under the MIT license.
 
-import { getUrl } from "../shared";
+import { Problem, getUrl } from "../shared";
 import { LcAxios } from "./httpUtils";
-import { Problem } from "../shared";
 
 /**
  * URL pattern matchers for different LeetCode URL types
@@ -15,66 +14,6 @@ const URL_PATTERNS = {
     company: /\/company\/([^\/]+)\/?/
 };
 
-/**
- * GraphQL queries for different content types
- */
-const GRAPHQL_QUERIES = {
-    studyPlan: `
-        query studyPlanDetail($slug: String!) {
-            studyPlan(slug: $slug) {
-                name
-                slug
-                description
-                planSubGroups {
-                    questions {
-                        translatedTitle
-                        titleSlug
-                        difficulty
-                        questionId
-                        questionFrontendId
-                        title
-                    }
-                }
-            }
-        }
-    `,
-
-    problemList: `
-        query problemList($slug: String!) {
-            favoriteDetail(favoriteSlug: $slug) {
-                name
-                description
-                questions {
-                    translatedTitle
-                    titleSlug
-                    difficulty
-                    questionId
-                    questionFrontendId
-                    title
-                }
-            }
-        }
-    `,
-
-    tag: `
-        query problemsByTag($tag: String!, $first: Int!) {
-            problemsetQuestionList(
-                categorySlug: ""
-                filters: { tags: [$tag] }
-                first: $first
-            ) {
-                questions {
-                    translatedTitle
-                    titleSlug
-                    difficulty
-                    questionId
-                    questionFrontendId
-                    title
-                }
-            }
-        }
-    `
-};
 
 /**
  * Parse URL and extract type and identifier
@@ -104,9 +43,9 @@ export function parseUrl(url: string): { type: string; slug: string; name: strin
 }
 
 /**
- * Fetch problems from LeetCode GraphQL API based on URL type
+ * Fetch problems using LeetCode CLI based on URL type
  */
-export async function fetchProblemsFromUrl(url: string): Promise<{ name: string; problems: Problem[] }> {
+export async function fetchProblemsFromUrl(url: string): Promise<{ name: string; problems: Problem[]; categories?: any[] }> {
     const urlInfo = parseUrl(url);
     if (!urlInfo) {
         throw new Error("Unsupported URL format");
@@ -114,86 +53,608 @@ export async function fetchProblemsFromUrl(url: string): Promise<{ name: string;
 
     const { type, slug, name } = urlInfo;
 
-    let query: string;
-    let variables: any;
-
-    switch (type) {
-        case 'studyPlan':
-            query = GRAPHQL_QUERIES.studyPlan;
-            variables = { slug };
-            break;
-
-        case 'problemList':
-            query = GRAPHQL_QUERIES.problemList;
-            variables = { slug };
-            break;
-
-        case 'tag':
-            query = GRAPHQL_QUERIES.tag;
-            variables = { tag: slug, first: 100 }; // Limit to 100 problems
-            break;
-
-        default:
-            throw new Error(`URL type "${type}" is not yet supported`);
-    }
+    console.log(`fetchProblemsFromUrl: Starting CLI-based import for URL: ${url}`);
+    console.log(`fetchProblemsFromUrl: Detected type: ${type}, slug: ${slug}, name: ${name}`);
 
     try {
-        const response = await LcAxios(getUrl("graphql"), {
-            method: "POST",
-            data: {
-                query,
-                variables
-            }
-        });
+        // Use LeetCode CLI to get real problems based on URL type
+        let problems: Problem[] = [];
+        let categories: any[] = [];
 
-        const problems = extractProblemsFromResponse(response.data.data, type);
+        switch (type) {
+            case 'studyPlan':
+                const studyPlanResult = await fetchStudyPlanProblems(slug);
+                problems = studyPlanResult.problems;
+                categories = studyPlanResult.categories || [];
+                break;
+
+            case 'problemList':
+                problems = await fetchProblemListProblems(slug);
+                break;
+
+            case 'tag':
+                problems = await fetchProblemsByTag(slug);
+                break;
+
+            case 'company':
+                problems = await fetchProblemsByCompany(slug);
+                break;
+
+            default:
+                throw new Error(`URL type "${type}" is not yet supported`);
+        }
+
+        console.log(`fetchProblemsFromUrl: Successfully fetched ${problems.length} real problems using CLI`);
+        if (categories.length > 0) {
+            console.log(`fetchProblemsFromUrl: Also fetched ${categories.length} categories`);
+        }
 
         return {
             name: name,
-            problems: problems
+            problems: problems,
+            categories: categories
         };
 
     } catch (error) {
-        console.error("Failed to fetch problems from URL:", error);
-        throw new Error(`Failed to fetch problems: ${error.message || error}`);
+        console.error("Failed to fetch problems using CLI:", error);
+        throw new Error(`CLI fetch failed: ${error.message || error}. Will use fallback data.`);
     }
 }
 
 /**
- * Extract problems from GraphQL response based on response type
+ * Fetch problems for study plans using GraphQL API
  */
-function extractProblemsFromResponse(data: any, type: string): Problem[] {
-    let questionsData: any[] = [];
+async function fetchStudyPlanProblems(slug: string): Promise<{ problems: Problem[]; categories?: any[] }> {
+    try {
+        console.log(`fetchStudyPlanProblems: Getting real problems for study plan: ${slug}`);
 
-    switch (type) {
-        case 'studyPlan':
-            if (data.studyPlan && data.studyPlan.planSubGroups) {
-                questionsData = data.studyPlan.planSubGroups.flatMap((group: any) => group.questions || []);
-            }
-            break;
+        // Try a simple GraphQL query to check if API is accessible
+        const testQuery = {
+            query: `
+                query {
+                    userStatus {
+                        isSignedIn
+                        username
+                    }
+                }
+            `,
+            variables: {}
+        };
 
-        case 'problemList':
-            if (data.favoriteDetail && data.favoriteDetail.questions) {
-                questionsData = data.favoriteDetail.questions;
-            }
-            break;
+        console.log(`fetchStudyPlanProblems: Testing GraphQL connectivity`);
 
-        case 'tag':
-            if (data.problemsetQuestionList && data.problemsetQuestionList.questions) {
-                questionsData = data.problemsetQuestionList.questions;
-            }
-            break;
+        const testResponse = await LcAxios(getUrl("graphql"), {
+            method: "POST",
+            data: testQuery
+        });
+
+        console.log(`fetchStudyPlanProblems: GraphQL test response:`, testResponse.data);
+
+        if (testResponse.data.errors) {
+            throw new Error(`GraphQL not accessible: ${testResponse.data.errors[0]?.message}`);
+        }
+
+        // If basic query works, try study plan query
+        const studyPlanQuery = {
+            query: `
+                query studyPlanV2Detail($slug: String!) {
+                    studyPlanV2Detail(planSlug: $slug) {
+                        name
+                        slug
+                        description
+                        planSubGroups {
+                            slug
+                            name
+                            questions {
+                                translatedTitle
+                                titleSlug
+                                difficulty
+                                questionId
+                                questionFrontendId
+                                title
+                            }
+                        }
+                    }
+                }
+            `,
+            variables: { slug }
+        };
+
+        console.log(`fetchStudyPlanProblems: Querying study plan with slug: ${slug}`);
+
+        const response = await LcAxios(getUrl("graphql"), {
+            method: "POST",
+            data: studyPlanQuery
+        });
+
+        console.log(`fetchStudyPlanProblems: Study plan response:`, JSON.stringify(response.data, null, 2));
+
+        if (response.data.errors) {
+            throw new Error(`Study plan query failed: ${response.data.errors[0]?.message}`);
+        }
+
+        const studyPlanData = response.data.data?.studyPlanV2Detail;
+        if (!studyPlanData) {
+            throw new Error("No study plan data in response");
+        }
+
+        let allQuestions: any[] = [];
+        if (studyPlanData.planSubGroups) {
+            allQuestions = studyPlanData.planSubGroups.flatMap((group: any) => group.questions || []);
+        }
+
+        if (allQuestions.length === 0) {
+            throw new Error("No questions found in study plan");
+        }
+
+        const problems: Problem[] = allQuestions.map((q: any) => ({
+            id: q.questionFrontendId || q.questionId,
+            title: q.translatedTitle || q.title,
+            titleSlug: q.titleSlug,
+            difficulty: q.difficulty,
+            frontendId: q.questionFrontendId,
+            questionId: q.questionId
+        }));
+
+        // Create categories from planSubGroups
+        const categories = studyPlanData.planSubGroups.map((group: any) => ({
+            id: `category_${group.slug}`,
+            name: group.name,
+            slug: group.slug,
+            problems: group.questions ? group.questions.map((q: any) => ({
+                id: q.questionFrontendId || q.questionId,
+                title: q.translatedTitle || q.title,
+                titleSlug: q.titleSlug,
+                difficulty: q.difficulty,
+                frontendId: q.questionFrontendId,
+                questionId: q.questionId
+            })) : []
+        }));
+
+        console.log(`fetchStudyPlanProblems: Successfully extracted ${problems.length} real problems from GraphQL`);
+        return { problems, categories };
+
+    } catch (error) {
+        console.error("Failed to fetch study plan problems via GraphQL:", error);
+
+        // Try web scraping as the only fallback
+        console.log("Trying web scraping approach...");
+        try {
+            const scrapingResult = await fetchStudyPlanProblemsViaWebScraping(slug);
+            return scrapingResult;
+        } catch (scrapingError) {
+            console.error("Web scraping also failed:", scrapingError);
+            throw new Error(`Failed to import from URL. GraphQL failed: ${error.message}. Web scraping failed: ${scrapingError.message}`);
+        }
     }
+}
 
-    return questionsData.map((q: any) => ({
-        id: q.questionFrontendId || q.questionId,
-        title: q.translatedTitle || q.title,
-        titleSlug: q.titleSlug,
-        difficulty: q.difficulty,
-        frontendId: q.questionFrontendId,
-        questionId: q.questionId
+
+/**
+ * Fetch study plan problems via web scraping using fetch
+ */
+async function fetchStudyPlanProblemsViaWebScraping(slug: string): Promise<{ problems: Problem[]; categories?: any[] }> {
+    try {
+        console.log(`fetchStudyPlanProblemsViaWebScraping: Attempting to scrape study plan: ${slug}`);
+
+        // Try to fetch the page content and look for embedded data
+        const url = `https://leetcode.cn/studyplan/${slug}/`;
+        console.log(`fetchStudyPlanProblemsViaWebScraping: Fetching URL: ${url}`);
+
+        // Use a simple HTTP request to get the page
+        const response = await LcAxios(url, {
+            method: "GET",
+            headers: {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        const html = response.data;
+        console.log(`fetchStudyPlanProblemsViaWebScraping: Got HTML content, length: ${html.length}`);
+
+        // Look for __NEXT_DATA__ script tag which contains the study plan data
+        // Capture the full inner JSON text between the script tags (do not try to match braces)
+        const nextDataMatches = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+
+        if (nextDataMatches) {
+            try {
+                const raw = nextDataMatches[1].trim();
+                const nextData = JSON.parse(raw);
+                console.log(`fetchStudyPlanProblemsViaWebScraping: Found __NEXT_DATA__`);
+
+                // Extract study plan data from the Next.js data
+                const result = extractProblemsFromNextData(nextData, slug);
+                if (result.problems.length > 0) {
+                    console.log(`fetchStudyPlanProblemsViaWebScraping: Extracted ${result.problems.length} problems from __NEXT_DATA__`);
+                    return result;
+                }
+            } catch (parseError) {
+                console.log(`fetchStudyPlanProblemsViaWebScraping: Failed to parse __NEXT_DATA__:`, parseError);
+            }
+        }
+
+        // Also try __INITIAL_STATE__ as fallback
+        const initialStateMatches = html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});[\s\S]*?<\/script>/);
+
+        if (initialStateMatches) {
+            try {
+                const jsonData = JSON.parse(initialStateMatches[1]);
+                console.log(`fetchStudyPlanProblemsViaWebScraping: Found __INITIAL_STATE__ data`);
+
+                // Try to extract problems from the initial state
+                const result = extractProblemsFromInitialState(jsonData, slug);
+                if (result.problems.length > 0) {
+                    console.log(`fetchStudyPlanProblemsViaWebScraping: Extracted ${result.problems.length} problems from __INITIAL_STATE__`);
+                    return result;
+                }
+            } catch (parseError) {
+                console.log(`fetchStudyPlanProblemsViaWebScraping: Failed to parse __INITIAL_STATE__:`, parseError);
+            }
+        }
+
+        // If no embedded data found, try to extract from HTML structure
+        const htmlResult = extractProblemsFromHTML(html);
+        if (htmlResult.problems.length > 0) {
+            return htmlResult;
+        }
+
+        throw new Error("No problems found in page content");
+
+    } catch (error) {
+        console.error("Web scraping failed:", error);
+        throw error;
+    }
+}
+
+/**
+ * Extract problems from __NEXT_DATA__ JSON
+ */
+function extractProblemsFromNextData(nextData: any, slug: string): { problems: Problem[]; categories?: any[] } {
+    try {
+        console.log(`extractProblemsFromNextData: Processing Next.js data for ${slug}`);
+
+        // Navigate to the study plan data based on your provided structure
+        const queries = nextData?.props?.pageProps?.dehydratedState?.queries;
+        if (!queries || !Array.isArray(queries)) {
+            console.log("No queries found in Next.js data");
+            return { problems: [] };
+        }
+
+        // Find the query that contains studyPlanV2Detail
+        for (const query of queries) {
+            const studyPlanData = query?.state?.data?.studyPlanV2Detail;
+            if (studyPlanData && studyPlanData.planSubGroups) {
+                console.log(`extractProblemsFromNextData: Found studyPlanV2Detail with ${studyPlanData.planSubGroups.length} groups`);
+
+                // Extract all questions from all planSubGroups
+                const allQuestions: any[] = [];
+                for (const group of studyPlanData.planSubGroups) {
+                    if (group.questions && Array.isArray(group.questions)) {
+                        console.log(`extractProblemsFromNextData: Group "${group.name}" has ${group.questions.length} questions`);
+                        allQuestions.push(...group.questions);
+                    }
+                }
+
+                if (allQuestions.length > 0) {
+                    const problems: Problem[] = allQuestions.map((q: any) => ({
+                        id: q.questionFrontendId || q.id,
+                        title: q.translatedTitle || q.title,
+                        titleSlug: q.titleSlug,
+                        difficulty: q.difficulty?.toLowerCase() || "medium", // Convert EASY -> easy
+                        frontendId: q.questionFrontendId || q.id,
+                        questionId: q.id || q.questionFrontendId
+                    }));
+
+                    // Create categories from planSubGroups
+                    const categories = studyPlanData.planSubGroups.map((group: any) => ({
+                        id: `category_${group.slug}`,
+                        name: group.name,
+                        slug: group.slug,
+                        problems: group.questions ? group.questions.map((q: any) => ({
+                            id: q.questionFrontendId || q.id,
+                            title: q.translatedTitle || q.title,
+                            titleSlug: q.titleSlug,
+                            difficulty: q.difficulty?.toLowerCase() || "medium",
+                            frontendId: q.questionFrontendId || q.id,
+                            questionId: q.id || q.questionFrontendId
+                        })) : []
+                    }));
+
+                    console.log(`extractProblemsFromNextData: Successfully extracted ${problems.length} problems from ${studyPlanData.planSubGroups.length} groups`);
+                    return { problems, categories };
+                }
+            }
+        }
+
+        console.log("No studyPlanV2Detail found in Next.js queries");
+        return { problems: [] };
+
+    } catch (error) {
+        console.error("Failed to extract from Next.js data:", error);
+        return { problems: [] };
+    }
+}
+
+/**
+ * Extract problems from page's initial state JSON
+ */
+function extractProblemsFromInitialState(data: any, _slug: string): { problems: Problem[]; categories?: any[] } {
+    try {
+        // Look for study plan data in various possible locations
+        const possiblePaths = [
+            data?.studyplan,
+            data?.studyPlan,
+            data?.plan,
+            data?.questions,
+            data?.problemList
+        ];
+
+        for (const path of possiblePaths) {
+            if (path && Array.isArray(path)) {
+                return { problems: convertInitialStateToProblems(path) };
+            } else if (path && path.questions && Array.isArray(path.questions)) {
+                return { problems: convertInitialStateToProblems(path.questions) };
+            } else if (path && path.planSubGroups) {
+                const allQuestions = path.planSubGroups.flatMap((group: any) => group.questions || []);
+                const categories = path.planSubGroups.map((group: any) => ({
+                    id: `category_${group.slug || group.name}`,
+                    name: group.name,
+                    slug: group.slug || group.name,
+                    problems: group.questions ? convertInitialStateToProblems(group.questions) : []
+                }));
+                return {
+                    problems: convertInitialStateToProblems(allQuestions),
+                    categories
+                };
+            }
+        }
+
+        return { problems: [] };
+    } catch (error) {
+        console.error("Failed to extract from initial state:", error);
+        return { problems: [] };
+    }
+}
+
+/**
+ * Extract problems from HTML content
+ */
+function extractProblemsFromHTML(html: string): { problems: Problem[]; categories?: any[] } {
+    try {
+        // Look for problem links in HTML
+        const problemLinkRegex = /href="\/problems\/([^"]+)"/g;
+
+        const problems: Problem[] = [];
+        const foundSlugs = new Set<string>();
+
+        let match;
+        while ((match = problemLinkRegex.exec(html)) !== null) {
+            const slug = match[1];
+            if (!foundSlugs.has(slug)) {
+                foundSlugs.add(slug);
+
+                // Try to find the title near this link
+                const title = slug.replace(/-/g, ' ').split(' ').map(word =>
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+
+                problems.push({
+                    id: problems.length + 1 + "",
+                    title: title,
+                    titleSlug: slug,
+                    difficulty: "Medium", // Default difficulty
+                    frontendId: problems.length + 1 + "",
+                    questionId: problems.length + 1 + ""
+                });
+            }
+        }
+
+        console.log(`extractProblemsFromHTML: Extracted ${problems.length} problems from HTML`);
+        return { problems: problems.slice(0, 100) }; // Limit to 100
+
+    } catch (error) {
+        console.error("Failed to extract from HTML:", error);
+        return { problems: [] };
+    }
+}
+
+/**
+ * Convert initial state data to Problem format
+ */
+function convertInitialStateToProblems(questions: any[]): Problem[] {
+    return questions.map((q: any, index: number) => ({
+        id: q.questionFrontendId || q.questionId || (index + 1).toString(),
+        title: q.translatedTitle || q.title || q.name || `Problem ${index + 1}`,
+        titleSlug: q.titleSlug || q.slug || `problem-${index + 1}`,
+        difficulty: q.difficulty || "Medium",
+        frontendId: q.questionFrontendId || q.questionId || (index + 1).toString(),
+        questionId: q.questionId || q.questionFrontendId || (index + 1).toString()
     }));
 }
+
+/**
+ * Fetch problems for problem lists using GraphQL
+ */
+async function fetchProblemListProblems(slug: string): Promise<Problem[]> {
+    try {
+        console.log(`fetchProblemListProblems: Getting problems for problem list: ${slug}`);
+
+        // Try GraphQL query for problem lists
+        const query = {
+            query: `
+                query favoriteDetail($favoriteSlug: String!) {
+                    favoriteDetail(favoriteSlug: $favoriteSlug) {
+                        name
+                        description
+                        questions {
+                            translatedTitle
+                            titleSlug
+                            difficulty
+                            questionId
+                            questionFrontendId
+                            title
+                        }
+                    }
+                }
+            `,
+            variables: { favoriteSlug: slug }
+        };
+
+        const response = await LcAxios(getUrl("graphql"), {
+            method: "POST",
+            data: query
+        });
+
+        if (response.data.errors) {
+            throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
+        }
+
+        const favoriteData = response.data.data?.favoriteDetail;
+        if (!favoriteData || !favoriteData.questions) {
+            throw new Error("No problem list data found");
+        }
+
+        const problems: Problem[] = favoriteData.questions.map((q: any) => ({
+            id: q.questionFrontendId || q.questionId,
+            title: q.translatedTitle || q.title,
+            titleSlug: q.titleSlug,
+            difficulty: q.difficulty,
+            frontendId: q.questionFrontendId,
+            questionId: q.questionId
+        }));
+
+        console.log(`fetchProblemListProblems: Successfully extracted ${problems.length} problems from GraphQL`);
+        return problems;
+
+    } catch (error) {
+        console.error("Failed to fetch problem list problems:", error);
+        throw new Error(`Failed to fetch problem list: ${error.message}`);
+    }
+}
+
+/**
+ * Fetch problems by tag using GraphQL
+ */
+async function fetchProblemsByTag(tag: string): Promise<Problem[]> {
+    try {
+        console.log(`fetchProblemsByTag: Getting problems with tag: ${tag}`);
+
+        // Try GraphQL query for tag-based problems
+        const query = {
+            query: `
+                query problemsetQuestionList($categorySlug: String!, $filters: QuestionListFilterInput!) {
+                    problemsetQuestionList(categorySlug: $categorySlug, filters: $filters) {
+                        questions {
+                            translatedTitle
+                            titleSlug
+                            difficulty
+                            questionId
+                            questionFrontendId
+                            title
+                        }
+                    }
+                }
+            `,
+            variables: {
+                categorySlug: "",
+                filters: { tags: [tag] }
+            }
+        };
+
+        const response = await LcAxios(getUrl("graphql"), {
+            method: "POST",
+            data: query
+        });
+
+        if (response.data.errors) {
+            throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
+        }
+
+        const questionData = response.data.data?.problemsetQuestionList;
+        if (!questionData || !questionData.questions) {
+            throw new Error("No tag problems data found");
+        }
+
+        const problems: Problem[] = questionData.questions.map((q: any) => ({
+            id: q.questionFrontendId || q.questionId,
+            title: q.translatedTitle || q.title,
+            titleSlug: q.titleSlug,
+            difficulty: q.difficulty,
+            frontendId: q.questionFrontendId,
+            questionId: q.questionId
+        }));
+
+        console.log(`fetchProblemsByTag: Successfully extracted ${problems.length} problems with tag: ${tag}`);
+        return problems;
+
+    } catch (error) {
+        console.error("Failed to fetch problems by tag:", error);
+        throw new Error(`Failed to fetch tag problems: ${error.message}`);
+    }
+}
+
+/**
+ * Fetch problems by company using GraphQL
+ */
+async function fetchProblemsByCompany(company: string): Promise<Problem[]> {
+    try {
+        console.log(`fetchProblemsByCompany: Getting problems for company: ${company}`);
+
+        // Try GraphQL query for company-based problems
+        const query = {
+            query: `
+                query problemsetQuestionList($categorySlug: String!, $filters: QuestionListFilterInput!) {
+                    problemsetQuestionList(categorySlug: $categorySlug, filters: $filters) {
+                        questions {
+                            translatedTitle
+                            titleSlug
+                            difficulty
+                            questionId
+                            questionFrontendId
+                            title
+                        }
+                    }
+                }
+            `,
+            variables: {
+                categorySlug: "",
+                filters: { companyTags: [company] }
+            }
+        };
+
+        const response = await LcAxios(getUrl("graphql"), {
+            method: "POST",
+            data: query
+        });
+
+        if (response.data.errors) {
+            throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
+        }
+
+        const questionData = response.data.data?.problemsetQuestionList;
+        if (!questionData || !questionData.questions) {
+            throw new Error("No company problems data found");
+        }
+
+        const problems: Problem[] = questionData.questions.map((q: any) => ({
+            id: q.questionFrontendId || q.questionId,
+            title: q.translatedTitle || q.title,
+            titleSlug: q.titleSlug,
+            difficulty: q.difficulty,
+            frontendId: q.questionFrontendId,
+            questionId: q.questionId
+        }));
+
+        console.log(`fetchProblemsByCompany: Successfully extracted ${problems.length} problems for company: ${company}`);
+        return problems;
+
+    } catch (error) {
+        console.error("Failed to fetch problems by company:", error);
+        throw new Error(`Failed to fetch company problems: ${error.message}`);
+    }
+}
+
 
 /**
  * Validate if URL is a supported LeetCode URL
@@ -215,3 +676,4 @@ export function isValidLeetCodeUrl(url: string): boolean {
         return false;
     }
 }
+

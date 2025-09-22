@@ -6,7 +6,7 @@ import { leetCodeChannel } from "../leetCodeChannel";
 import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
 import { problemListManager } from "../problemList/problemListManager";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
-import { isValidLeetCodeUrl } from "../utils/urlImportUtils";
+import { isValidLeetCodeUrl, parseUrl } from "../utils/urlImportUtils";
 
 /**
  * Create a new problem list - shows selection menu
@@ -287,6 +287,28 @@ export async function addToProblemList(node?: any): Promise<void> {
         const targetList = problemListManager.getProblemList(selectedList.value);
         if (targetList) {
             try {
+                // If the list has categories, ask user which category to add to
+                let selectedCategoryId: string | undefined;
+
+                if (targetList.categories && targetList.categories.length > 0) {
+                    const categoryOptions = targetList.categories.map(category => ({
+                        label: category.name,
+                        description: `${category.problems.length} problems`,
+                        value: category.id
+                    }));
+
+                    const selectedCategory = await vscode.window.showQuickPick(categoryOptions, {
+                        placeHolder: `Add "${currentProblem}" to which category in "${targetList.name}"?`,
+                        matchOnDescription: true
+                    });
+
+                    if (!selectedCategory) {
+                        return;
+                    }
+
+                    selectedCategoryId = selectedCategory.value;
+                }
+
                 // Show progress while adding
                 await vscode.window.withProgress({
                     location: vscode.ProgressLocation.Notification,
@@ -296,7 +318,7 @@ export async function addToProblemList(node?: any): Promise<void> {
                     progress.report({ increment: 0, message: "Adding problem..." });
 
                     // Use the problem data we prepared earlier
-                    await problemListManager.addProblemToList(selectedList.value, problemData);
+                    await problemListManager.addProblemToList(selectedList.value, problemData, selectedCategoryId);
 
                     progress.report({ increment: 50, message: "Refreshing tree view..." });
 
@@ -306,8 +328,11 @@ export async function addToProblemList(node?: any): Promise<void> {
                     progress.report({ increment: 100, message: "Complete!" });
                 });
 
-                vscode.window.showInformationMessage(`"${currentProblem}" added to "${targetList.name}" successfully!`);
-                leetCodeChannel.appendLine(`Added "${currentProblem}" to problem list: ${targetList.name} (ID: ${targetList.id})`);
+                const categoryName = selectedCategoryId ?
+                    targetList.categories?.find(cat => cat.id === selectedCategoryId)?.name || "Unknown Category" :
+                    "the list";
+                vscode.window.showInformationMessage(`"${currentProblem}" added to "${targetList.name}" (${categoryName}) successfully!`);
+                leetCodeChannel.appendLine(`Added "${currentProblem}" to problem list: ${targetList.name} (ID: ${targetList.id}, Category: ${categoryName})`);
             } catch (error) {
                 vscode.window.showErrorMessage(`Failed to add problem to list: ${error}`);
                 leetCodeChannel.appendLine(`Error adding "${currentProblem}" to problem list: ${error}`);
@@ -453,6 +478,25 @@ export async function importProblemListFromUrl(): Promise<void> {
             return;
         }
 
+        // Ask user for custom name (optional)
+        const urlInfo = parseUrl(url);
+        const defaultName = urlInfo?.name || "Imported Problem List";
+        const customName = await vscode.window.showInputBox({
+            prompt: "Enter a name for the problem list (optional)",
+            placeHolder: `e.g., ${defaultName}`,
+            value: defaultName,
+            validateInput: (value: string) => {
+                if (!value.trim()) {
+                    return "Problem list name cannot be empty";
+                }
+                return null;
+            }
+        });
+
+        if (customName === undefined) {
+            return; // User cancelled
+        }
+
         let newList: any = null;
 
         // Show progress
@@ -471,7 +515,7 @@ export async function importProblemListFromUrl(): Promise<void> {
 
             try {
                 // Import problem list from URL using GraphQL
-                newList = await problemListManager.importFromUrl(url);
+                newList = await problemListManager.importFromUrl(url, customName);
 
                 progress.report({ increment: 75, message: "Processing problems..." });
 

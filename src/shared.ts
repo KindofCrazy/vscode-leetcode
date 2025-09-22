@@ -169,12 +169,20 @@ export interface Problem {
     translatedTitle?: string;
 }
 
+export interface ProblemCategory {
+    id: string;
+    name: string;
+    slug: string;
+    problems: Problem[];
+}
+
 export interface ProblemList {
     id: string;
     name: string;
     description: string;
     url: string;
-    problems: Problem[];
+    problems: Problem[]; // Keep for backward compatibility
+    categories?: ProblemCategory[]; // New field for categorized problems
     createdAt: string;
     updatedAt: string;
 }
