@@ -3,6 +3,7 @@
 
 import * as vscode from "vscode";
 import { ProblemList, Problem } from "../shared";
+import { fetchProblemsFromUrl, isValidLeetCodeUrl } from "../utils/urlImportUtils";
 
 /**
  * Problem List Manager - handles all problem list operations
@@ -201,30 +202,44 @@ export class ProblemListManager {
     }
 
     /**
-     * Import problems from URL (placeholder for now)
+     * Import problems from URL using LeetCode GraphQL API
      */
     public async importFromUrl(url: string): Promise<ProblemList> {
-        // TODO: Implement actual URL parsing and problem fetching
-        // For now, create a mock list
-        const name = this.extractNameFromUrl(url);
-        const list = await this.createProblemList(name, `Imported from ${url}`, url);
+        // Validate URL
+        if (!isValidLeetCodeUrl(url)) {
+            throw new Error("Invalid LeetCode URL. Please provide a valid study plan, problem list, or tag URL.");
+        }
 
-        // Mock: Add some sample problems
-        const mockProblems: Problem[] = [
-            {
-                id: "1",
-                title: "Two Sum",
-                titleSlug: "two-sum",
-                difficulty: "Easy",
-                frontendId: "1",
-                questionId: "1"
-            }
-        ];
+        try {
+            // Fetch problems from the URL
+            const { name, problems } = await fetchProblemsFromUrl(url);
 
-        list.problems = mockProblems;
-        await this.saveProblemLists();
+            // Create the problem list
+            const list = await this.createProblemList(name, `Imported from ${url}`, url);
 
-        return list;
+            // Add all fetched problems to the list
+            list.problems = problems;
+            list.updatedAt = new Date().toISOString();
+
+            // Save the updated list
+            await this.saveProblemLists();
+
+            console.log(`ProblemListManager: Successfully imported ${problems.length} problems from URL: ${url}`);
+
+            return list;
+
+        } catch (error) {
+            console.error("Failed to import from URL:", error);
+
+            // If GraphQL fails, create an empty list as fallback
+            const fallbackName = this.extractNameFromUrl(url);
+            const fallbackList = await this.createProblemList(fallbackName, `Imported from ${url} (manual population required)`, url);
+
+            console.log(`ProblemListManager: Created empty fallback list "${fallbackName}" due to import error`);
+
+            // Return the fallback list instead of throwing error
+            return fallbackList;
+        }
     }
 
     /**

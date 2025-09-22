@@ -6,6 +6,7 @@ import { leetCodeChannel } from "../leetCodeChannel";
 import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
 import { problemListManager } from "../problemList/problemListManager";
 import { leetCodeTreeDataProvider } from "../explorer/LeetCodeTreeDataProvider";
+import { isValidLeetCodeUrl } from "../utils/urlImportUtils";
 
 /**
  * Create a new problem list - shows selection menu
@@ -440,9 +441,9 @@ export async function importProblemListFromUrl(): Promise<void> {
                 if (!value.trim()) {
                     return "URL cannot be empty";
                 }
-                // Basic URL validation
-                if (!value.match(/^https?:\/\/(www\.)?(leetcode\.com|leetcode\.cn)/)) {
-                    return "Please enter a valid LeetCode URL";
+                // Use the comprehensive URL validation
+                if (!isValidLeetCodeUrl(value.trim())) {
+                    return "Please enter a valid LeetCode study plan, problem list, or tag URL";
                 }
                 return null;
             }
@@ -462,19 +463,30 @@ export async function importProblemListFromUrl(): Promise<void> {
         }, async (progress, token) => {
             progress.report({ increment: 0, message: "Analyzing URL..." });
 
-            // Simulate progress
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
             if (token.isCancellationRequested) {
                 return;
             }
 
-            progress.report({ increment: 50, message: "Creating problem list..." });
+            progress.report({ increment: 25, message: "Fetching problem data from LeetCode..." });
 
-            // Create problem list from URL
-            newList = await problemListManager.importFromUrl(url);
+            try {
+                // Import problem list from URL using GraphQL
+                newList = await problemListManager.importFromUrl(url);
 
-            progress.report({ increment: 100, message: "Complete!" });
+                progress.report({ increment: 75, message: "Processing problems..." });
+
+                if (token.isCancellationRequested) {
+                    return;
+                }
+
+                progress.report({ increment: 100, message: `Imported ${newList.problems.length} problems!` });
+
+            } catch (error) {
+                // If import fails, show the error but don't crash
+                vscode.window.showErrorMessage(`Failed to import from URL: ${error.message || error}`);
+                leetCodeChannel.appendLine(`Import error: ${error.message || error}`);
+                return;
+            }
         });
 
         if (newList) {
