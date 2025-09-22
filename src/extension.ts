@@ -104,8 +104,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             vscode.commands.registerCommand("leetcode.problems.sort", () => plugin.switchSortingStrategy()),
             vscode.commands.registerCommand("leetcode.createProblemList", () => problemList.createProblemList()),
             vscode.commands.registerCommand("leetcode.manageProblemLists", () => problemList.manageProblemLists()),
-            vscode.commands.registerCommand("leetcode.addToProblemList", () => problemList.addToProblemList()),
-            vscode.commands.registerCommand("leetcode.removeFromProblemList", () => problemList.removeFromProblemList()),
+            vscode.commands.registerCommand("leetcode.addToProblemList", (node?: LeetCodeNode) => problemList.addToProblemList(node)),
+            vscode.commands.registerCommand("leetcode.removeFromProblemList", (node?: LeetCodeNode) => problemList.removeFromProblemList(node)),
             vscode.commands.registerCommand("leetcode.importProblemListFromUrl", () => problemList.importProblemListFromUrl()),
         );
 

@@ -28,6 +28,13 @@ export class LeetCodeTreeDataProvider implements vscode.TreeDataProvider<LeetCod
         this.onDidChangeTreeDataEvent.fire(null);
     }
 
+    public refreshProblemLists(): void {
+        // For now, use full refresh to ensure UI updates immediately
+        // TODO: Implement proper partial refresh to maintain expanded states
+        console.log("refreshProblemLists: Performing full tree refresh to ensure UI updates");
+        this.onDidChangeTreeDataEvent.fire(null);
+    }
+
     public getTreeItem(element: LeetCodeNode): vscode.TreeItem | Thenable<vscode.TreeItem> {
         if (element.id === "notSignIn") {
             return {

@@ -57,6 +57,11 @@ export async function createEmptyProblemList(): Promise<void> {
                 if (!value.trim()) {
                     return "Problem list name cannot be empty";
                 }
+                // Check for duplicate names
+                const existingLists = problemListManager.getAllProblemLists();
+                if (existingLists.some(list => list.name.toLowerCase() === value.trim().toLowerCase())) {
+                    return `A problem list with name "${value.trim()}" already exists`;
+                }
                 return null;
             }
         });
@@ -70,14 +75,29 @@ export async function createEmptyProblemList(): Promise<void> {
             placeHolder: "e.g., Collection of dynamic programming problems"
         });
 
-        // Create the problem list
-        const newList = await problemListManager.createProblemList(name, description || "");
+        // Show progress while creating
+        const newList = await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Creating problem list",
+            cancellable: false
+        }, async (progress) => {
+            progress.report({ increment: 0, message: "Creating problem list..." });
 
-        // Refresh the tree view to show the new problem list
-        await leetCodeTreeDataProvider.refresh();
+            // Create the problem list
+            const list = await problemListManager.createProblemList(name, description || "");
 
-        vscode.window.showInformationMessage(`Problem list "${name}" created successfully!`);
-        leetCodeChannel.appendLine(`Created problem list: ${name} (ID: ${newList.id})`);
+                    progress.report({ increment: 50, message: "Refreshing tree view..." });
+
+                    // Refresh only the Problem Lists section to maintain other expanded states
+                    leetCodeTreeDataProvider.refreshProblemLists();
+
+                    progress.report({ increment: 100, message: "Complete!" });
+
+            return list;
+        });
+
+        vscode.window.showInformationMessage(`Problem list "${newList.name}" created successfully!`);
+        leetCodeChannel.appendLine(`Created problem list: ${newList.name} (ID: ${newList.id})`);
 
     } catch (error) {
         await promptForOpenOutputChannel(`Failed to create problem list: ${error}`, DialogType.error);
@@ -89,14 +109,28 @@ export async function createEmptyProblemList(): Promise<void> {
  */
 export async function manageProblemLists(): Promise<void> {
     try {
-        // TODO: Get actual problem lists
-        const mockLists = [
-            { label: "My Favorites", description: "5 problems", value: "favorites" },
-            { label: "Dynamic Programming", description: "10 problems", value: "dp" },
-            { label: "Top Interview Questions", description: "20 problems", value: "top-interview" }
-        ];
+        // Get actual problem lists
+        const problemLists = problemListManager.getAllProblemLists();
 
-        const selectedList = await vscode.window.showQuickPick(mockLists, {
+        if (problemLists.length === 0) {
+            const createNew = await vscode.window.showInformationMessage(
+                "No problem lists found. Would you like to create one?",
+                "Create New List"
+            );
+
+            if (createNew === "Create New List") {
+                await createProblemList();
+            }
+            return;
+        }
+
+        const listOptions = problemLists.map(list => ({
+            label: list.name,
+            description: `${list.problems.length} problems${list.description ? ' - ' + list.description : ''}`,
+            value: list.id
+        }));
+
+        const selectedList = await vscode.window.showQuickPick(listOptions, {
             placeHolder: "Select a problem list to manage",
             matchOnDescription: true
         });
@@ -127,10 +161,27 @@ export async function manageProblemLists(): Promise<void> {
             );
 
             if (confirmDelete === "Delete") {
-                // TODO: Implement delete logic
-                // await problemListManager.deleteProblemList(selectedList.value);
-                // await leetCodeTreeDataProvider.refresh();
-                vscode.window.showInformationMessage(`"${selectedList.label}" will be deleted`);
+                // Show progress while deleting
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: "Deleting problem list",
+                    cancellable: false
+                }, async (progress) => {
+                    progress.report({ increment: 0, message: "Deleting problem list..." });
+
+                    // Delete the problem list
+                    await problemListManager.deleteProblemList(selectedList.value);
+
+                    progress.report({ increment: 50, message: "Refreshing tree view..." });
+
+                    // Refresh only the Problem Lists section to maintain other expanded states
+                    leetCodeTreeDataProvider.refreshProblemLists();
+
+                    progress.report({ increment: 100, message: "Complete!" });
+                });
+
+                vscode.window.showInformationMessage(`"${selectedList.label}" deleted successfully!`);
+                leetCodeChannel.appendLine(`Deleted problem list: ${selectedList.label} (ID: ${selectedList.value})`);
             }
         } else {
             vscode.window.showInformationMessage(`Action "${action.label}" selected for "${selectedList.label}"`);
@@ -144,20 +195,82 @@ export async function manageProblemLists(): Promise<void> {
 /**
  * Add current problem to a problem list
  */
-export async function addToProblemList(): Promise<void> {
+export async function addToProblemList(node?: any): Promise<void> {
     try {
-        // TODO: Get current problem from active editor
-        const currentProblem = "Two Sum"; // Mock data
+        // Get current problem from the context (node parameter) or active editor
+        let currentProblem = "Unknown Problem";
+        let problemData: any;
 
-        // TODO: Get actual problem lists
-        const mockLists = [
-            { label: "My Favorites", value: "favorites" },
-            { label: "Dynamic Programming", value: "dp" },
-            { label: "Create New List...", value: "_new" }
-        ];
+        if (node && node.name) {
+            // If called from context menu with a node
+            currentProblem = node.name.replace(/^\[\d+\]\s*/, ''); // Remove [123] prefix if exists
+            problemData = {
+                id: node.id,
+                title: currentProblem,
+                titleSlug: currentProblem.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
+                difficulty: node.difficulty || "Unknown",
+                frontendId: node.id,
+                questionId: node.id
+            };
+        } else {
+            // TODO: Get from active editor or show input dialog
+            const userInput = await vscode.window.showInputBox({
+                prompt: "Enter the problem name to add to list",
+                placeHolder: "e.g., 两数之和, Three Sum"
+            });
 
-        const selectedList = await vscode.window.showQuickPick(mockLists, {
-            placeHolder: `Add "${currentProblem}" to which list?`
+            if (!userInput) {
+                return;
+            }
+
+            currentProblem = userInput;
+            problemData = {
+                id: Date.now().toString(),
+                title: currentProblem,
+                titleSlug: currentProblem.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, ''),
+                difficulty: "Unknown",
+                frontendId: Date.now().toString(),
+                questionId: Date.now().toString()
+            };
+        }
+
+        // Get actual problem lists
+        const problemLists = problemListManager.getAllProblemLists();
+
+        console.log(`addToProblemList: Found ${problemLists.length} problem lists`);
+        problemLists.forEach(list => {
+            console.log(`  - ${list.name} (${list.problems.length} problems)`);
+        });
+
+        if (problemLists.length === 0) {
+            const createNew = await vscode.window.showInformationMessage(
+                "No problem lists found. Would you like to create one?",
+                "Create New List"
+            );
+
+            if (createNew === "Create New List") {
+                await createProblemList();
+            }
+            return;
+        }
+
+        // Build the list options
+        const listOptions = problemLists.map(list => ({
+            label: `${list.name} (${list.problems.length} problems)`,
+            description: list.description || "No description",
+            value: list.id
+        }));
+
+        // Add "Create New List..." option at the end
+        listOptions.push({
+            label: "$(plus) Create New List...",
+            description: "Create a new problem list",
+            value: "_new"
+        });
+
+        const selectedList = await vscode.window.showQuickPick(listOptions, {
+            placeHolder: `Add "${currentProblem}" to which list?`,
+            matchOnDescription: true
         });
 
         if (!selectedList) {
@@ -169,8 +282,36 @@ export async function addToProblemList(): Promise<void> {
             return;
         }
 
-        // TODO: Implement actual add logic
-        vscode.window.showInformationMessage(`"${currentProblem}" added to "${selectedList.label}"`);
+        // Add the problem to the selected list
+        const targetList = problemListManager.getProblemList(selectedList.value);
+        if (targetList) {
+            try {
+                // Show progress while adding
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: "Adding problem to list",
+                    cancellable: false
+                }, async (progress) => {
+                    progress.report({ increment: 0, message: "Adding problem..." });
+
+                    // Use the problem data we prepared earlier
+                    await problemListManager.addProblemToList(selectedList.value, problemData);
+
+                    progress.report({ increment: 50, message: "Refreshing tree view..." });
+
+                    // Refresh only the Problem Lists section to maintain other expanded states
+                    leetCodeTreeDataProvider.refreshProblemLists();
+
+                    progress.report({ increment: 100, message: "Complete!" });
+                });
+
+                vscode.window.showInformationMessage(`"${currentProblem}" added to "${targetList.name}" successfully!`);
+                leetCodeChannel.appendLine(`Added "${currentProblem}" to problem list: ${targetList.name} (ID: ${targetList.id})`);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to add problem to list: ${error}`);
+                leetCodeChannel.appendLine(`Error adding "${currentProblem}" to problem list: ${error}`);
+            }
+        }
 
     } catch (error) {
         await promptForOpenOutputChannel(`Failed to add problem to list: ${error}`, DialogType.error);
@@ -180,27 +321,107 @@ export async function addToProblemList(): Promise<void> {
 /**
  * Remove current problem from a problem list
  */
-export async function removeFromProblemList(): Promise<void> {
+export async function removeFromProblemList(node?: any): Promise<void> {
     try {
-        // TODO: Get current problem from active editor
-        const currentProblem = "Two Sum"; // Mock data
+        // Get current problem from the context (node parameter) or active editor
+        let currentProblem = "Unknown Problem";
+        let problemId = "";
 
-        // TODO: Get problem lists containing this problem
-        const mockLists = [
-            { label: "My Favorites", value: "favorites" },
-            { label: "Dynamic Programming", value: "dp" }
-        ];
+        if (node && node.name) {
+            // If called from context menu with a node
+            currentProblem = node.name.replace(/^\[\d+\]\s*/, ''); // Remove [123] prefix if exists
+            problemId = node.id;
+        } else {
+            // TODO: Get from active editor or show input dialog
+            const userInput = await vscode.window.showInputBox({
+                prompt: "Enter the problem name to remove from lists",
+                placeHolder: "e.g., 两数之和, Three Sum"
+            });
 
-        const selectedList = await vscode.window.showQuickPick(mockLists, {
-            placeHolder: `Remove "${currentProblem}" from which list?`
+            if (!userInput) {
+                return;
+            }
+
+            currentProblem = userInput;
+            // For user input, we need to find the problem in lists by title
+        }
+
+        // Get problem lists containing this problem
+        const allLists = problemListManager.getAllProblemLists();
+        const containingLists = allLists.filter(list => {
+            if (problemId) {
+                // Search by ID if we have it
+                return list.problems.some(p => p.id === problemId || p.frontendId === problemId);
+            } else {
+                // Search by title if we only have the name
+                return list.problems.some(p => p.title === currentProblem);
+            }
+        });
+
+        console.log(`removeFromProblemList: Found ${containingLists.length} lists containing "${currentProblem}"`);
+
+        if (containingLists.length === 0) {
+            vscode.window.showInformationMessage(`"${currentProblem}" is not in any problem lists.`);
+            return;
+        }
+
+        // Build the list options
+        const listOptions = containingLists.map(list => ({
+            label: `${list.name} (${list.problems.length} problems)`,
+            description: list.description || "No description",
+            value: list.id
+        }));
+
+        const selectedList = await vscode.window.showQuickPick(listOptions, {
+            placeHolder: `Remove "${currentProblem}" from which list?`,
+            matchOnDescription: true
         });
 
         if (!selectedList) {
             return;
         }
 
-        // TODO: Implement actual remove logic
-        vscode.window.showInformationMessage(`"${currentProblem}" removed from "${selectedList.label}"`);
+        // Remove the problem from the selected list
+        const targetList = problemListManager.getProblemList(selectedList.value);
+        if (targetList) {
+            try {
+                // Show progress while removing
+                await vscode.window.withProgress({
+                    location: vscode.ProgressLocation.Notification,
+                    title: "Removing problem from list",
+                    cancellable: false
+                }, async (progress) => {
+                    progress.report({ increment: 0, message: "Removing problem..." });
+
+                    // Find the problem to remove
+                    let problemToRemove;
+                    if (problemId) {
+                        problemToRemove = targetList.problems.find(p => p.id === problemId || p.frontendId === problemId);
+                    } else {
+                        problemToRemove = targetList.problems.find(p => p.title === currentProblem);
+                    }
+
+                    if (problemToRemove) {
+                        await problemListManager.removeProblemFromList(selectedList.value, problemToRemove.id);
+                    } else {
+                        throw new Error(`Problem not found in the list`);
+                    }
+
+                    progress.report({ increment: 50, message: "Refreshing tree view..." });
+
+                    // Refresh only the Problem Lists section to maintain other expanded states
+                    leetCodeTreeDataProvider.refreshProblemLists();
+
+                    progress.report({ increment: 100, message: "Complete!" });
+                });
+
+                vscode.window.showInformationMessage(`"${currentProblem}" removed from "${targetList.name}" successfully!`);
+                leetCodeChannel.appendLine(`Removed "${currentProblem}" from problem list: ${targetList.name} (ID: ${targetList.id})`);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to remove problem from list: ${error}`);
+                leetCodeChannel.appendLine(`Error removing "${currentProblem}" from problem list: ${error}`);
+            }
+        }
 
     } catch (error) {
         await promptForOpenOutputChannel(`Failed to remove problem from list: ${error}`, DialogType.error);
@@ -257,8 +478,8 @@ export async function importProblemListFromUrl(): Promise<void> {
         });
 
         if (newList) {
-            // Refresh the tree view to show the new problem list
-            await leetCodeTreeDataProvider.refresh();
+            // Refresh only the Problem Lists section to maintain other expanded states
+            leetCodeTreeDataProvider.refreshProblemLists();
 
             vscode.window.showInformationMessage(`Problem list "${newList.name}" imported successfully!`);
             leetCodeChannel.appendLine(`Imported problem list: ${newList.name} (ID: ${newList.id}) from ${url}`);

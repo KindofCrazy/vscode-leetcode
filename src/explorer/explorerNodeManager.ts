@@ -115,10 +115,12 @@ class ExplorerNodeManager implements Disposable {
         const res: LeetCodeNode[] = [];
         const problemLists = problemListManager.getAllProblemLists();
 
+        console.log(`ExplorerNodeManager: Getting ${problemLists.length} problem lists`);
+
         for (const problemList of problemLists) {
             res.push(new LeetCodeNode(Object.assign({}, defaultProblem, {
                 id: `${Category.ProblemList}.${problemList.id}`,
-                name: `${problemList.name} (${problemList.problems.length})`,
+                name: problemList.name,
             }), false));
         }
 
@@ -127,6 +129,7 @@ class ExplorerNodeManager implements Disposable {
             return Number(a.name > b.name) - Number(a.name < b.name);
         });
 
+        console.log(`ExplorerNodeManager: Returning ${res.length} problem list nodes`);
         return res;
     }
 
@@ -155,16 +158,32 @@ class ExplorerNodeManager implements Disposable {
             const problemListId = metaInfo[1];
             const problemList = problemListManager.getProblemList(problemListId);
 
+            console.log(`ExplorerNodeManager: Getting children for problem list: ${problemListId}`);
+
             if (problemList) {
+                console.log(`ExplorerNodeManager: Found problem list with ${problemList.problems.length} problems`);
+
                 for (const problem of problemList.problems) {
-                    // Find the corresponding LeetCode node
-                    const node = this.explorerNodeMap.get(problem.id);
-                    if (node) {
-                        res.push(node);
+                    // First try to find the corresponding LeetCode node from existing problems
+                    let node = this.explorerNodeMap.get(problem.frontendId) || this.explorerNodeMap.get(problem.id);
+
+                    if (!node) {
+                        // If not found, create a new node for this problem
+                        console.log(`Creating new node for problem: ${problem.title}`);
+                        const problemData = Object.assign({}, defaultProblem, {
+                            id: problem.frontendId || problem.id,
+                            name: problem.title,
+                            difficulty: problem.difficulty || "Unknown",
+                            state: ProblemState.Unknown
+                        });
+                        node = new LeetCodeNode(problemData, true); // true indicates this is a problem node
                     }
+
+                    res.push(node);
                 }
             }
 
+            console.log(`ExplorerNodeManager: Returning ${res.length} problem nodes`);
             return this.applySortingStrategy(res);
         }
 

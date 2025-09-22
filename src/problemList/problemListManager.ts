@@ -38,6 +38,7 @@ export class ProblemListManager {
      */
     private loadProblemLists(): void {
         if (!this.context) {
+            console.log("ProblemListManager: No context available for loading");
             return;
         }
 
@@ -47,6 +48,8 @@ export class ProblemListManager {
         stored.forEach(list => {
             this.problemLists.set(list.id, list);
         });
+
+        console.log(`ProblemListManager: Loaded ${stored.length} problem lists from storage`);
     }
 
     /**
@@ -65,13 +68,24 @@ export class ProblemListManager {
      * Create a new problem list
      */
     public async createProblemList(name: string, description: string = "", url: string = ""): Promise<ProblemList> {
+        // Validate input
+        if (!name || !name.trim()) {
+            throw new Error("Problem list name cannot be empty");
+        }
+
+        // Check for duplicate names
+        const existingLists = this.getAllProblemLists();
+        if (existingLists.some(list => list.name.toLowerCase() === name.trim().toLowerCase())) {
+            throw new Error(`A problem list with name "${name.trim()}" already exists`);
+        }
+
         const id = this.generateId();
         const now = new Date().toISOString();
 
         const newList: ProblemList = {
             id,
-            name,
-            description,
+            name: name.trim(),
+            description: description.trim(),
             url,
             problems: [],
             createdAt: now,
@@ -80,6 +94,8 @@ export class ProblemListManager {
 
         this.problemLists.set(id, newList);
         await this.saveProblemLists();
+
+        console.log(`ProblemListManager: Created new problem list "${newList.name}" with ID: ${newList.id}`);
 
         return newList;
     }
@@ -118,12 +134,16 @@ export class ProblemListManager {
      * Delete a problem list
      */
     public async deleteProblemList(id: string): Promise<void> {
-        if (!this.problemLists.has(id)) {
+        const list = this.problemLists.get(id);
+        if (!list) {
             throw new Error(`Problem list with id ${id} not found`);
         }
 
+        const listName = list.name;
         this.problemLists.delete(id);
         await this.saveProblemLists();
+
+        console.log(`ProblemListManager: Deleted problem list "${listName}" with ID: ${id}`);
     }
 
     /**
@@ -144,6 +164,8 @@ export class ProblemListManager {
         list.updatedAt = new Date().toISOString();
 
         await this.saveProblemLists();
+
+        console.log(`ProblemListManager: Added problem "${problem.title}" to list "${list.name}". List now has ${list.problems.length} problems.`);
     }
 
     /**
@@ -160,10 +182,13 @@ export class ProblemListManager {
             throw new Error(`Problem with id ${problemId} not found in the list`);
         }
 
+        const removedProblem = list.problems[index];
         list.problems.splice(index, 1);
         list.updatedAt = new Date().toISOString();
 
         await this.saveProblemLists();
+
+        console.log(`ProblemListManager: Removed problem "${removedProblem.title}" from list "${list.name}". List now has ${list.problems.length} problems.`);
     }
 
     /**

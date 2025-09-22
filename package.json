@@ -268,6 +268,11 @@
                     "command": "leetcode.addToProblemList",
                     "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
                     "group": "leetcode@4"
+                },
+                {
+                    "command": "leetcode.removeFromProblemList",
+                    "when": "view == leetCodeExplorer && viewItem =~ /problem*/",
+                    "group": "leetcode@5"
                 }
             ],
             "commandPalette": [
