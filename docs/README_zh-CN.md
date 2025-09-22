@@ -23,7 +23,7 @@
 
 ### ✨ 新增功能
 
-#### 1. **分屏显示模式** 
+#### 1. **分屏显示模式**
 - **左侧题目描述，右侧代码编辑器**：查看题目时，描述自动在左栏打开，代码编辑器在右栏打开
 - **统一布局**：所有相关视图（提交结果、测试结果、描述）都在左栏打开，布局更整齐
 - **可配置**：可通过 `leetcode.enableSplitView` 设置启用/禁用
@@ -43,12 +43,10 @@
 - **智能定位**：视图会根据您的分屏偏好自动定位
 
 #### **新增命令**
-- `LeetCode: Create Problem List` - 创建新的自定义题单
-- `LeetCode: Delete Problem List` - 删除现有题单  
+- `LeetCode: Create Problem List` - 创建新的自定义题单（空题单或从 URL 导入）
+- `LeetCode: Manage Problem Lists` - 查看和管理现有题单
 - `LeetCode: Add to Problem List` - 将当前题目添加到题单
 - `LeetCode: Remove from Problem List` - 从题单中移除当前题目
-- `LeetCode: Manage Problem Lists` - 打开题单管理界面
-- `LeetCode: Create Problem List from URL` - 从LeetCode URL创建题单
 
 #### **新增设置**
 - `leetcode.enableSplitView` - 启用/禁用分屏显示模式（默认：true）
@@ -95,21 +93,27 @@
 
 ### 安装方法
 
-1. **下载插件**：
+#### 选项1：从 VS Code 扩展市场安装 *(即将推出)*
+- 在 VS Code 扩展市场中搜索 "LeetCode Enhanced"
+- 点击安装
+- *注意：目前正在等待审核，请暂时使用选项2或3*
+
+#### 选项2：从 GitHub Releases 安装
+1. **从 [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases) 下载最新 .vsix 文件**
+2. **通过 VS Code 安装**：
    ```bash
-   # 从发布页面下载 .vsix 文件
-   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
+   code --install-extension vscode-leetcode-enhanced-[版本号].vsix
    ```
 
-2. **或从源码安装**：
-   ```bash
-   git clone https://github.com/KindofCrazy/vscode-leetcode.git
-   cd vscode-leetcode
-   npm install
-   npm run compile
-   vsce package
-   code --install-extension vscode-leetcode-enhanced-0.18.5.vsix
-   ```
+#### 选项3：从源码安装
+```bash
+git clone https://github.com/KindofCrazy/vscode-leetcode.git
+cd vscode-leetcode
+npm install
+npm run compile
+vsce package
+code --install-extension *.vsix
+```
 
 ### 基本使用
 
@@ -133,7 +137,7 @@
 - **创建题单**：使用 `LeetCode: Create Problem List` 命令
 - **添加题目**：右键点击任意题目 → "Add to Problem List"
 - **管理题单**：使用 `LeetCode: Manage Problem Lists` 命令
-- **从URL创建**：使用 `LeetCode: Create Problem List from URL` 命令
+- **从URL创建**：使用 `LeetCode: Create Problem List` 命令（选择"Import from URL"选项）
 
 #### 支持的URL类型
 
