@@ -138,19 +138,20 @@ code --install-extension *.vsix
 
 ### How to Use Cookie Login
 
-1. **Get your LeetCode Cookie**:
-   - Open LeetCode website in your browser
+1. **Get your LeetCode Cookie (via Network → GraphQL)**:
+   - Open the LeetCode website (`leetcode.com` or `leetcode.cn`) and make sure you are logged in
    - Press F12 to open Developer Tools
-   - Go to Application/Storage → Cookies
-   - Copy the value of `LEETCODE_SESSION` cookie
+   - Go to the Network tab, filter to Fetch/XHR, then refresh the page (F5)
+   - Click any `graphql` request in the list
+   - In the right panel, under Request Headers, find the `Cookie` header and copy its full value
 
 2. **Login with Cookie**:
    - Click `Sign In` in the LeetCode Explorer
    - Select `LeetCode Cookie` (marked as Recommended)
-   - Paste your cookie value
+   - Paste the Cookie header value you copied in step 1
    - You're logged in!
 
-> **Note**: If you're using `leetcode.cn`, the process is the same but use the Chinese LeetCode website.
+> **Note**: For `leetcode.cn`, follow the same steps on the Chinese site and use the copied `Cookie` header value. This method follows guidance similar to community tutorials [CSDN blog reference](https://blog.csdn.net/m0_73531461/article/details/137224171).
 
 ## Features
 

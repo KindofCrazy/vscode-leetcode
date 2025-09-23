@@ -75,19 +75,19 @@
 
 ### 如何使用 Cookie 登录
 
-1. **获取您的 LeetCode Cookie**：
-   - 在浏览器中打开 LeetCode 网站
-   - 按 F12 打开开发者工具
-   - 转到 Application/Storage → Cookies
-   - 复制 `LEETCODE_SESSION` cookie 的值
+1. **从 Network → GraphQL 获取 Cookie**：
+   - 打开 LeetCode 网站（`leetcode.com` 或 `leetcode.cn`）并确保已在浏览器中登录
+   - 按 F12 打开开发者工具，切换到 Network 面板，筛选为 Fetch/XHR，然后按 F5 刷新
+   - 在请求列表中点击任意 `graphql` 请求
+   - 在右侧 Request Headers 中找到 `Cookie` 字段，复制其完整值
 
 2. **使用 Cookie 登录**：
    - 在 LeetCode Explorer 中点击 `Sign In`
-   - 选择 `LeetCode Cookie`（标记为推荐）
-   - 粘贴您的 cookie 值
+   - 选择 `LeetCode Cookie`（推荐）
+   - 粘贴第 1 步复制的 Cookie 请求头完整值
    - 登录成功！
 
-> **注意**：如果您使用的是 `leetcode.cn`，过程相同，但请使用中文 LeetCode 网站。
+> **提示**：在 `leetcode.cn` 上流程相同，仅需在中文站点上执行上述步骤。参考社区教程（[CSDN 博客](https://blog.csdn.net/m0_73531461/article/details/137224171)）。
 
 ## 🎯 快速开始
 
