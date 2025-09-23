@@ -93,10 +93,10 @@
 
 ### 安装方法
 
-#### 选项1：从 VS Code 扩展市场安装 *(即将推出)*
+#### 选项1：从 VS Code 扩展市场安装
 - 在 VS Code 扩展市场中搜索 "LeetCode Enhanced"
 - 点击安装
-- *注意：目前正在等待审核，请暂时使用选项2或3*
+- *发布者：keyang*
 
 #### 选项2：从 GitHub Releases 安装
 1. **从 [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases) 下载最新 .vsix 文件**

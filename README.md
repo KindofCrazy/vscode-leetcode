@@ -67,10 +67,10 @@ This is an enhanced version of the original [vscode-leetcode](https://github.com
 
 ### Installation
 
-#### Option 1: Install from VS Code Marketplace *(Coming Soon)*
+#### Option 1: Install from VS Code Marketplace
 - Search for "LeetCode Enhanced" in the VS Code Extensions marketplace
 - Click Install
-- *Note: Currently pending approval, please use Option 2 or 3 for now*
+- *Published by: keyang*
 
 #### Option 2: Install from GitHub Releases
 1. **Download the latest .vsix file** from [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases)
