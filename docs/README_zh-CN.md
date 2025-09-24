@@ -142,7 +142,7 @@ code --install-extension *.vsix
 #### 支持的URL类型
 
 - 📚 **学习计划** - 任何LeetCode学习计划URL（如：`/studyplan/top-100-liked/`）
-- 📋 **题单** - 任何LeetCode题单URL（如：`/problem-list/2ckc81c/`）*(即将推出)*
+- 📋 **题单** - 任何LeetCode题单URL（如：`/problem-list/2ckc81c/`）
 - 🌐 **双域名支持** - 支持 leetcode.cn 和 leetcode.com
 - 🎯 **智能命名** - 根据URL模式智能命名
 

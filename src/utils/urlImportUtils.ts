@@ -480,20 +480,30 @@ async function fetchProblemListProblems(slug: string): Promise<Problem[]> {
     try {
         console.log(`fetchProblemListProblems: Getting problems for problem list: ${slug}`);
 
-        // Try GraphQL query for problem lists
+        // Try GraphQL query for problem lists - use favoriteQuestionList instead of favoriteDetail
         const query = {
             query: `
-                query favoriteDetail($favoriteSlug: String!) {
-                    favoriteDetail(favoriteSlug: $favoriteSlug) {
-                        name
-                        description
+                query favoriteQuestionList($favoriteSlug: String!) {
+                    favoriteQuestionList(favoriteSlug: $favoriteSlug) {
                         questions {
-                            translatedTitle
-                            titleSlug
                             difficulty
-                            questionId
+                            id
+                            paidOnly
                             questionFrontendId
+                            status
                             title
+                            titleSlug
+                            translatedTitle
+                            topicTags {
+                                id
+                                name
+                                slug
+                                nameTranslated
+                            }
+                            isInMyFavorites
+                            frequency
+                            acRate
+                            contestPoint
                         }
                     }
                 }
@@ -510,18 +520,18 @@ async function fetchProblemListProblems(slug: string): Promise<Problem[]> {
             throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
         }
 
-        const favoriteData = response.data.data?.favoriteDetail;
+        const favoriteData = response.data.data?.favoriteQuestionList;
         if (!favoriteData || !favoriteData.questions) {
             throw new Error("No problem list data found");
         }
 
         const problems: Problem[] = favoriteData.questions.map((q: any) => ({
-            id: q.questionFrontendId || q.questionId,
+            id: q.questionFrontendId || q.id,
             title: q.translatedTitle || q.title,
             titleSlug: q.titleSlug,
             difficulty: q.difficulty,
             frontendId: q.questionFrontendId,
-            questionId: q.questionId
+            questionId: q.id
         }));
 
         console.log(`fetchProblemListProblems: Successfully extracted ${problems.length} problems from GraphQL`);
@@ -529,7 +539,16 @@ async function fetchProblemListProblems(slug: string): Promise<Problem[]> {
 
     } catch (error) {
         console.error("Failed to fetch problem list problems:", error);
-        throw new Error(`Failed to fetch problem list: ${error.message}`);
+
+        // Try web scraping as fallback
+        console.log("Trying web scraping approach for problem list...");
+        try {
+            const scrapingResult = await fetchProblemListProblemsViaWebScraping(slug);
+            return scrapingResult.problems;
+        } catch (scrapingError) {
+            console.error("Web scraping also failed:", scrapingError);
+            throw new Error(`Failed to import from URL. GraphQL failed: ${error.message}. Web scraping failed: ${scrapingError.message}`);
+        }
     }
 }
 
@@ -652,6 +671,154 @@ async function fetchProblemsByCompany(company: string): Promise<Problem[]> {
     } catch (error) {
         console.error("Failed to fetch problems by company:", error);
         throw new Error(`Failed to fetch company problems: ${error.message}`);
+    }
+}
+
+/**
+ * Fetch problem list problems via web scraping as fallback
+ */
+async function fetchProblemListProblemsViaWebScraping(slug: string): Promise<{ problems: Problem[]; categories?: any[] }> {
+    try {
+        console.log(`fetchProblemListProblemsViaWebScraping: Attempting to scrape problem list: ${slug}`);
+
+        // Try to fetch the page content and look for embedded data
+        const url = `https://leetcode.cn/problem-list/${slug}/`;
+        console.log(`fetchProblemListProblemsViaWebScraping: Fetching URL: ${url}`);
+
+        const response = await LcAxios(url, {
+            method: "GET",
+            headers: {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
+
+        const html = response.data;
+        console.log(`fetchProblemListProblemsViaWebScraping: Got HTML content, length: ${html.length}`);
+
+        // Look for __NEXT_DATA__ script tag which contains the problem list data
+        const nextDataMatches = html.match(/<script id="__NEXT_DATA__" type="application\/json">([\s\S]*?)<\/script>/);
+
+        if (nextDataMatches) {
+            try {
+                const raw = nextDataMatches[1].trim();
+                const nextData = JSON.parse(raw);
+                console.log(`fetchProblemListProblemsViaWebScraping: Found __NEXT_DATA__`);
+
+                // Extract problem list data from the Next.js data
+                const result = extractProblemListFromNextData(nextData, slug);
+                if (result.problems.length > 0) {
+                    console.log(`fetchProblemListProblemsViaWebScraping: Extracted ${result.problems.length} problems from __NEXT_DATA__`);
+                    return result;
+                }
+            } catch (parseError) {
+                console.log(`fetchProblemListProblemsViaWebScraping: Failed to parse __NEXT_DATA__:`, parseError);
+            }
+        }
+
+        // Also try __INITIAL_STATE__ as fallback
+        const initialStateMatches = html.match(/<script[^>]*>[\s\S]*?window\.__INITIAL_STATE__\s*=\s*({[\s\S]*?});[\s\S]*?<\/script>/);
+
+        if (initialStateMatches) {
+            try {
+                const jsonData = JSON.parse(initialStateMatches[1]);
+                console.log(`fetchProblemListProblemsViaWebScraping: Found __INITIAL_STATE__ data`);
+
+                // Try to extract problems from the initial state
+                const result = extractProblemListFromInitialState(jsonData, slug);
+                if (result.problems.length > 0) {
+                    console.log(`fetchProblemListProblemsViaWebScraping: Extracted ${result.problems.length} problems from __INITIAL_STATE__`);
+                    return result;
+                }
+            } catch (parseError) {
+                console.log(`fetchProblemListProblemsViaWebScraping: Failed to parse __INITIAL_STATE__:`, parseError);
+            }
+        }
+
+        throw new Error("No problems found in page content");
+
+    } catch (error) {
+        console.error("Problem list web scraping failed:", error);
+        throw error;
+    }
+}
+
+/**
+ * Extract problems from __NEXT_DATA__ JSON for problem list
+ */
+function extractProblemListFromNextData(nextData: any, slug: string): { problems: Problem[]; categories?: any[] } {
+    try {
+        console.log(`extractProblemListFromNextData: Processing Next.js data for problem list ${slug}`);
+
+        // Navigate to the problem list data based on the structure
+        const queries = nextData?.props?.pageProps?.dehydratedState?.queries;
+        if (!queries || !Array.isArray(queries)) {
+            console.log("No queries found in Next.js data");
+            return { problems: [] };
+        }
+
+        // Find the query that contains favoriteQuestionList
+        for (const query of queries) {
+            const favoriteData = query?.state?.data?.favoriteQuestionList;
+            if (favoriteData && favoriteData.questions) {
+                console.log(`extractProblemListFromNextData: Found favoriteQuestionList with ${favoriteData.questions.length} questions`);
+
+                const problems: Problem[] = favoriteData.questions.map((q: any) => ({
+                    id: q.questionFrontendId || q.id,
+                    title: q.translatedTitle || q.title,
+                    titleSlug: q.titleSlug,
+                    difficulty: q.difficulty?.toLowerCase() || "medium",
+                    frontendId: q.questionFrontendId,
+                    questionId: q.id
+                }));
+
+                console.log(`extractProblemListFromNextData: Successfully extracted ${problems.length} problems`);
+                return { problems };
+            }
+        }
+
+        console.log("No favoriteQuestionList found in Next.js queries");
+        return { problems: [] };
+
+    } catch (error) {
+        console.error("Failed to extract problem list from Next.js data:", error);
+        return { problems: [] };
+    }
+}
+
+/**
+ * Extract problems from page's initial state JSON for problem list
+ */
+function extractProblemListFromInitialState(data: any, _slug: string): { problems: Problem[]; categories?: any[] } {
+    try {
+        // Look for problem list data in various possible locations
+        const possiblePaths = [
+            data?.favoriteQuestionList,
+            data?.favoriteList,
+            data?.questions,
+            data?.problemList
+        ];
+
+        for (const path of possiblePaths) {
+            if (path && path.questions && Array.isArray(path.questions)) {
+                const problems: Problem[] = path.questions.map((q: any, index: number) => ({
+                    id: q.questionFrontendId || q.questionId || q.id || (index + 1).toString(),
+                    title: q.translatedTitle || q.title || q.name || `Problem ${index + 1}`,
+                    titleSlug: q.titleSlug || q.slug || `problem-${index + 1}`,
+                    difficulty: q.difficulty || "Medium",
+                    frontendId: q.questionFrontendId || q.questionId || q.id || (index + 1).toString(),
+                    questionId: q.questionId || q.questionFrontendId || q.id || (index + 1).toString()
+                }));
+
+                console.log(`extractProblemListFromInitialState: Successfully extracted ${problems.length} problems`);
+                return { problems };
+            }
+        }
+
+        return { problems: [] };
+    } catch (error) {
+        console.error("Failed to extract problem list from initial state:", error);
+        return { problems: [] };
     }
 }
 
