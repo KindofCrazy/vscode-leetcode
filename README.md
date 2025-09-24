@@ -116,13 +116,13 @@ code --install-extension *.vsix
 #### Supported URL Types
 
 - 📚 **Study Plans** - Any LeetCode study plan URL (e.g., `/studyplan/top-100-liked/`)
-- 📋 **Problem Lists** - Any LeetCode problem list URL (e.g., `/problem-list/2ckc81c/`) (Coming Soon)
+- 📋 **Problem Lists** - Any LeetCode problem list URL (e.g., `/problem-list/5VgExJRB/`)
 - 🌐 **Both Domains** - Support for both leetcode.cn and leetcode.com
 - 🎯 **Auto-Naming** - Intelligent naming based on URL patterns
 
 ## Requirements
 
-- [VS Code 1.30.1+](https://code.visualstudio.com/)
+- [VS Code 1.57.0+](https://code.visualstudio.com/)
 - [Node.js 10+](https://nodejs.org)
   > NOTE: Please make sure that `Node` is in your `PATH` environment variable. You can also use the setting `leetcode.nodePath` to specify the location of your `Node.js` executable.
 
@@ -276,49 +276,6 @@ src/
 │   └── leetCodeSubmissionProvider.ts # Enhanced: Split view support
 └── shared.ts                   # Enhanced: New interfaces and types
 ```
-
-## 🆕 What's New in This Version
-
-### Version 0.18.5
-- ✅ **Split View Mode**: Description and code editor side-by-side layout
-- ✅ **Problem List System**: Create, manage, and organize custom problem lists
-- ✅ **Consistent View Behavior**: All LeetCode views respect split view setting
-- ✅ **Enhanced User Experience**: Better layout and organization
-- ✅ **New Commands**: Full problem list management commands
-- ✅ **Configuration Options**: Customizable split view behavior
-- ✅ **Documentation Updates**: Enhanced documentation with future development roadmap
-
-## 🚀 Future Development Plan
-
-### 📋 URL-Based Problem Sets (题单) Feature - Coming Soon
-
-We are actively developing a **URL-based Problem Sets** feature that will make it easy to create and manage problem lists directly from LeetCode URLs:
-
-#### 🎯 Planned Features
-
-##### **1. URL-Based Problem Set Creation**
-- **Study Plan Import**: Create problem sets directly from LeetCode study plan URLs
-- **Problem List Import**: Import problem lists from any LeetCode problem list URL
-- **Company List Import**: Import company-specific problem lists from LeetCode
-- **Custom URL Support**: Support for both leetcode.com and leetcode.cn domains
-
-##### **2. Enhanced Set Management**
-- **One-Click Import**: Simple URL pasting to create problem sets instantly
-- **Auto-Naming**: Intelligent naming based on URL patterns and content
-- **Set Organization**: Organize imported sets by category, difficulty, or company
-- **Batch Operations**: Import multiple sets at once from different sources
-
-##### **3. URL Integration Features**
-- **URL Validation**: Validate and preview problem sets before import
-- **Progress Sync**: Sync progress with original LeetCode study plans
-- **Update Tracking**: Track changes in source URLs and update sets accordingly
-- **Bookmark Integration**: Save and share problem set URLs for easy access
-
-##### **4. User Experience Improvements**
-- **Quick Access**: Fast problem set creation without manual problem selection
-- **Visual Preview**: Preview problem sets before importing
-- **Error Handling**: Clear error messages for invalid or inaccessible URLs
-- **Import History**: Keep track of previously imported problem sets
 
 
 ## 🔄 Migration from Original Extension
