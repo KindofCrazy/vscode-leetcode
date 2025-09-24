@@ -9,9 +9,7 @@ import { LcAxios } from "./httpUtils";
  */
 const URL_PATTERNS = {
     studyPlan: /\/studyplan\/([^\/]+)\/?/,
-    problemList: /\/problem-list\/([^\/]+)\/?/,
-    tag: /\/tag\/([^\/]+)\/?/,
-    company: /\/company\/([^\/]+)\/?/
+    problemList: /\/problem-list\/([^\/]+)\/?/
 };
 
 
@@ -70,14 +68,6 @@ export async function fetchProblemsFromUrl(url: string): Promise<{ name: string;
 
             case 'problemList':
                 problems = await fetchProblemListProblems(slug);
-                break;
-
-            case 'tag':
-                problems = await fetchProblemsByTag(slug);
-                break;
-
-            case 'company':
-                problems = await fetchProblemsByCompany(slug);
                 break;
 
             default:
@@ -552,127 +542,7 @@ async function fetchProblemListProblems(slug: string): Promise<Problem[]> {
     }
 }
 
-/**
- * Fetch problems by tag using GraphQL
- */
-async function fetchProblemsByTag(tag: string): Promise<Problem[]> {
-    try {
-        console.log(`fetchProblemsByTag: Getting problems with tag: ${tag}`);
 
-        // Try GraphQL query for tag-based problems
-        const query = {
-            query: `
-                query problemsetQuestionList($categorySlug: String!, $filters: QuestionListFilterInput!) {
-                    problemsetQuestionList(categorySlug: $categorySlug, filters: $filters) {
-                        questions {
-                            translatedTitle
-                            titleSlug
-                            difficulty
-                            questionId
-                            questionFrontendId
-                            title
-                        }
-                    }
-                }
-            `,
-            variables: {
-                categorySlug: "",
-                filters: { tags: [tag] }
-            }
-        };
-
-        const response = await LcAxios(getUrl("graphql"), {
-            method: "POST",
-            data: query
-        });
-
-        if (response.data.errors) {
-            throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
-        }
-
-        const questionData = response.data.data?.problemsetQuestionList;
-        if (!questionData || !questionData.questions) {
-            throw new Error("No tag problems data found");
-        }
-
-        const problems: Problem[] = questionData.questions.map((q: any) => ({
-            id: q.questionFrontendId || q.questionId,
-            title: q.translatedTitle || q.title,
-            titleSlug: q.titleSlug,
-            difficulty: q.difficulty,
-            frontendId: q.questionFrontendId,
-            questionId: q.questionId
-        }));
-
-        console.log(`fetchProblemsByTag: Successfully extracted ${problems.length} problems with tag: ${tag}`);
-        return problems;
-
-    } catch (error) {
-        console.error("Failed to fetch problems by tag:", error);
-        throw new Error(`Failed to fetch tag problems: ${error.message}`);
-    }
-}
-
-/**
- * Fetch problems by company using GraphQL
- */
-async function fetchProblemsByCompany(company: string): Promise<Problem[]> {
-    try {
-        console.log(`fetchProblemsByCompany: Getting problems for company: ${company}`);
-
-        // Try GraphQL query for company-based problems
-        const query = {
-            query: `
-                query problemsetQuestionList($categorySlug: String!, $filters: QuestionListFilterInput!) {
-                    problemsetQuestionList(categorySlug: $categorySlug, filters: $filters) {
-                        questions {
-                            translatedTitle
-                            titleSlug
-                            difficulty
-                            questionId
-                            questionFrontendId
-                            title
-                        }
-                    }
-                }
-            `,
-            variables: {
-                categorySlug: "",
-                filters: { companyTags: [company] }
-            }
-        };
-
-        const response = await LcAxios(getUrl("graphql"), {
-            method: "POST",
-            data: query
-        });
-
-        if (response.data.errors) {
-            throw new Error(`GraphQL error: ${response.data.errors[0]?.message}`);
-        }
-
-        const questionData = response.data.data?.problemsetQuestionList;
-        if (!questionData || !questionData.questions) {
-            throw new Error("No company problems data found");
-        }
-
-        const problems: Problem[] = questionData.questions.map((q: any) => ({
-            id: q.questionFrontendId || q.questionId,
-            title: q.translatedTitle || q.title,
-            titleSlug: q.titleSlug,
-            difficulty: q.difficulty,
-            frontendId: q.questionFrontendId,
-            questionId: q.questionId
-        }));
-
-        console.log(`fetchProblemsByCompany: Successfully extracted ${problems.length} problems for company: ${company}`);
-        return problems;
-
-    } catch (error) {
-        console.error("Failed to fetch problems by company:", error);
-        throw new Error(`Failed to fetch company problems: ${error.message}`);
-    }
-}
 
 /**
  * Fetch problem list problems via web scraping as fallback
