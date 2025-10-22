@@ -302,7 +302,7 @@ This project is based on the original [vscode-leetcode](https://github.com/LeetC
 - Enhanced user interface
 - Improved view consistency
 
-## 🚀 Maybe in the Future... 
+## 🚀 Maybe in the Future...
 
 We are considering adding the following features in future releases:
 
