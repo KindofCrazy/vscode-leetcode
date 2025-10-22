@@ -302,6 +302,14 @@ This project is based on the original [vscode-leetcode](https://github.com/LeetC
 - Enhanced user interface
 - Improved view consistency
 
+## 🚀 Maybe in the Future... 
+
+We are considering adding the following features in future releases:
+
+### Daily Challenge
+- **Daily Problem**: Automatically fetch and display LeetCode's daily challenge problem
+- **Notification**: Get notified when a new daily problem is available
+
 ## Want Help?
 
 When you meet any problem, you can check out the [Troubleshooting](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/Troubleshooting) and [FAQ](https://github.com/LeetCode-OpenSource/vscode-leetcode/wiki/FAQ) first.
