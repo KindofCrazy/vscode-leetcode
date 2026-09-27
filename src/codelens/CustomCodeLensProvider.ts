@@ -87,6 +87,14 @@ export class CustomCodeLensProvider implements vscode.CodeLensProvider {
             }));
         }
 
+        if (shortcuts.indexOf("clear") >= 0) {
+            codeLens.push(new vscode.CodeLens(range, {
+                title: "Clear",
+                command: "leetcode.clearSolution",
+                arguments: [document.uri],
+            }));
+        }
+
         return codeLens;
     }
 }

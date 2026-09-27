@@ -4,6 +4,7 @@
 import * as vscode from "vscode";
 import { codeLensController } from "./codelens/CodeLensController";
 import * as cache from "./commands/cache";
+import * as clear from "./commands/clear";
 import { switchDefaultLanguage } from "./commands/language";
 import * as plugin from "./commands/plugin";
 import * as session from "./commands/session";
@@ -78,6 +79,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             vscode.commands.registerCommand("leetcode.searchProblem", () => show.searchProblem()),
             vscode.commands.registerCommand("leetcode.showSolution", (input: LeetCodeNode | vscode.Uri) => show.showSolution(input)),
             vscode.commands.registerCommand("leetcode.refreshExplorer", () => leetCodeTreeDataProvider.refresh()),
+            vscode.commands.registerCommand("leetcode.clearSolution", (uri?: vscode.Uri) => clear.clearSolution(uri)),
             vscode.commands.registerCommand("leetcode.testSolution", (uri?: vscode.Uri) => {
                 TrackData.report({
                     event_key: `vscode_runCode`,
