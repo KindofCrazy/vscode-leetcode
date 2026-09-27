@@ -14,6 +14,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - **Planned**: Update tracking for source URLs
 - **Planned**: Enhanced error handling and user experience
 
+## [0.18.6]
+### Added
+- Add a `Clear` editor shortcut that restores the initial code template while preserving the problem file structure.
+- Make clearing undoable and guard against overwriting edits made while the template is loading.
 
 ## [0.18.5]
 ### Added

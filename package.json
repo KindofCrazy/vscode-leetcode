@@ -2,7 +2,7 @@
     "name": "vscode-leetcode-enhanced",
     "displayName": "LeetCode Enhanced",
     "description": "Solve LeetCode problems in VS Code with split view and problem lists",
-    "version": "0.18.5",
+    "version": "0.18.6",
     "author": "KindofCrazy",
     "publisher": "keyang",
     "license": "MIT",
