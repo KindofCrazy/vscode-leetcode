@@ -15,15 +15,10 @@
 
 ## 安装
 
-### 从 VS Code 扩展市场安装
+> [!WARNING]
+> VS Code Marketplace 中目前仍是旧版本，**不包含** `Clear` 功能。建议使用下面两种方式之一安装最新版。
 
-1. 打开 VS Code 扩展面板。
-2. 搜索 **LeetCode Enhanced**。
-3. 安装发布者为 **keyang** 的扩展。
-
-扩展 ID：`keyang.vscode-leetcode-enhanced`
-
-### 从 GitHub Release 安装
+### 推荐：从 GitHub Release 安装
 
 1. 从 [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases/latest) 下载最新的 `.vsix` 文件。
 2. 在 VS Code 扩展面板点击 `...`，选择 **从 VSIX 安装...**。
@@ -33,6 +28,20 @@
 ```bash
 code --install-extension vscode-leetcode-enhanced-0.18.6.vsix --force
 ```
+
+### 推荐：从源码构建安装
+
+```bash
+git clone https://github.com/KindofCrazy/vscode-leetcode.git
+cd vscode-leetcode
+npm ci
+npx @vscode/vsce package
+code --install-extension vscode-leetcode-enhanced-0.18.6.vsix --force
+```
+
+### VS Code Marketplace（旧版本）
+
+在扩展市场搜索发布者为 **keyang** 的 **LeetCode Enhanced**（`keyang.vscode-leetcode-enhanced`）。该版本目前不包含 `Clear` 功能。
 
 ## 快速使用
 

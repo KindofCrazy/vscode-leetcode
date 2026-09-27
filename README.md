@@ -15,15 +15,10 @@ The original extension features, including sign-in, problem browsing, testing, s
 
 ## Installation
 
-### VS Code Marketplace
+> [!WARNING]
+> The VS Code Marketplace currently provides an older version that does **not** include the `Clear` shortcut. Use one of the following recommended methods to install the latest version.
 
-1. Open the Extensions view in VS Code.
-2. Search for **LeetCode Enhanced**.
-3. Install the extension published by **keyang**.
-
-Extension ID: `keyang.vscode-leetcode-enhanced`
-
-### GitHub Release
+### Recommended: GitHub Release
 
 1. Download the latest `.vsix` from [GitHub Releases](https://github.com/KindofCrazy/vscode-leetcode/releases/latest).
 2. In VS Code, open the Extensions view, select `...`, and choose **Install from VSIX...**.
@@ -33,6 +28,20 @@ You can also install it from the command line:
 ```bash
 code --install-extension vscode-leetcode-enhanced-0.18.6.vsix --force
 ```
+
+### Recommended: Build from Source
+
+```bash
+git clone https://github.com/KindofCrazy/vscode-leetcode.git
+cd vscode-leetcode
+npm ci
+npx @vscode/vsce package
+code --install-extension vscode-leetcode-enhanced-0.18.6.vsix --force
+```
+
+### VS Code Marketplace (Older Version)
+
+Search for **LeetCode Enhanced**, published by **keyang** (`keyang.vscode-leetcode-enhanced`). This version does not currently contain the `Clear` feature.
 
 ## Quick Start
 
